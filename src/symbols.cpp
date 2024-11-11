@@ -5,7 +5,7 @@
 
 namespace GPTSovits {
 
-const std::set<std::string_view> Symbols = {
+const std::set<std::string_view> g_Symbols = {
   "!",
   ",",
   "-",
