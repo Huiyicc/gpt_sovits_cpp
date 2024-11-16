@@ -11,18 +11,35 @@
 #include "GPTSovits/tool.h"
 
 namespace GPTSovits {
+class GPTSovits;
+
+struct BertRes;
 
 class CNBertModel {
 private:
   std::unique_ptr<tokenizers::Tokenizer> m_tokenzer;
   std::unique_ptr<torch::jit::Module> m_module;
+  std::unique_ptr<TorchDevice> m_devices;
 
   friend class std::unique_ptr<CNBertModel>;
-  explicit CNBertModel(std::unique_ptr<torch::jit::Module> bert_model,std::unique_ptr<tokenizers::Tokenizer> tokenzer);
+
+  friend std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text);
+
+  CNBertModel() {};
 
 public:
 
-  static std::unique_ptr<CNBertModel> Make(TorchDevice &device, std::string_view bert_model_path, std::string_view tokenzer_path);
+  struct EncodeResult {
+    torch::Tensor TokenIds;
+    torch::Tensor TokenTypeIds;
+    torch::Tensor Masks;
+  };
+
+
+  EncodeResult EncodeText(const std::string &text);
+
+  static std::unique_ptr<CNBertModel>
+  Make(TorchDevice &device, std::string_view bert_model_path, std::string_view tokenzer_path);
 
 };
 

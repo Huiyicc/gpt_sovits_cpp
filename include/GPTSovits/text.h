@@ -11,14 +11,22 @@ namespace GPTSovits {
 
 struct G2PRes {
   std::vector<std::string> phones;
+  std::vector<int> phone_ids;
   std::vector<int> word2ph;
   std::string norm_text;
+};
+
+struct BertRes {
+  std::unique_ptr<torch::Tensor> PhoneSeq;
+  std::unique_ptr<torch::Tensor> BertSeq;
 };
 
 G2PRes CleanText(const std::string &text);
 
 std::tuple<std::vector<std::string>, std::vector<int>>
 g2p(const std::string &text);
+
+std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text);
 
 }
 

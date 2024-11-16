@@ -6,6 +6,7 @@
 #include <utility>
 #include "cppjieba/Jieba.hpp"
 #include "GPTSovits/TextNormalizer.h"
+#include "GPTSovits/utils.h"
 
 namespace GPTSovits {
 
@@ -105,7 +106,7 @@ ToneSandhi::neural_sandhi(const std::u32string &word, const std::string &pos, st
   } else if (word.size() > 1 && std::u32string_view(U"来去").find(word.back()) != std::u32string::npos &&
              std::u32string_view(U"上下进出回过起开").find(word[word.size() - 2]) != std::u32string::npos) {
     finals.back() = finals.back().substr(0, finals.back().size() - 1) + "5";
-  } else if ((ge_idx >= 1 && (isdigit(word[ge_idx - 1]) ||
+  } else if ((ge_idx >= 1 && (safe_isdigit(word[ge_idx - 1]) ||
                               std::u32string_view(U"几有两半多各整每做是").find(word[ge_idx - 1]) !=
                               std::u32string::npos)) || word == U"个") {
     finals[ge_idx] = finals[ge_idx].substr(0, finals[ge_idx].size() - 1) + "5";
@@ -141,7 +142,7 @@ ToneSandhi::neural_sandhi(const std::u32string &word, const std::string &pos, st
 std::vector<std::string> ToneSandhi::yi_sandhi(const std::u32string &word, std::vector<std::string> &finals) {
   // "一" in number sequences, e.g. 一零零, 二一零
   if (word.find(U'一') != std::u32string::npos && std::all_of(word.begin(), word.end(), [](char32_t c) {
-    return c == U'一' || isdigit(char(c));
+    return c == U'一' || safe_isdigit(char(c));
   })) {
     return finals;
   }

@@ -14,9 +14,13 @@ std::unique_ptr<GPTSovitsConfig> GPTSovitsConfig::Make(std::string_view cn_bert_
 
 
 std::unique_ptr<GPTSovits> GPTSovitsConfig::Build(TorchDevice &device) {
+  auto ssl = std::make_unique<torch::jit::Module>(torch::jit::load(m_SslPath, device));
+  if (!ssl) {
+    THROW_ERRORN("加载ssl模型失败!\nFrom:{}", m_SslPath);
+  }
   return GPTSovits::Make(
     CNBertModel::Make(device, std::move(m_CnBertPath), std::move(m_TokenizerPath)),
-    std::make_unique<torch::jit::Module>(torch::jit::load(m_SslPath, device)),
+    std::move(ssl),
     device
   );
 }

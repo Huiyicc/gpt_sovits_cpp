@@ -1,4 +1,5 @@
 #include "GPTSovits/polyphonic.h"
+#include "GPTSovits/exception.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <filesystem>
@@ -17,7 +18,7 @@ get_polyphonic_map() {
     auto path = std::filesystem::current_path() / "res" / "polyphonic.data";
     std::ifstream file(path);
     if (!file.is_open()) {
-      throw std::runtime_error(std::format("字典文件不存在!\nFrom:{}", path.string()));
+      THROW_ERRORN("字典文件不存在!\nFrom:{}", path.string());
     }
     file.seekg(0, std::ios::end);
     std::streamsize fileSize = file.tellg();

@@ -6,11 +6,13 @@
 #define GPT_SOVITS_CPP_SYMBOLS_H
 
 #include <set>
+#include <vector>
 #include <string>
+#include <unordered_map>
 
 namespace GPTSovits {
 
-extern const std::set<std::string_view> g_Symbols;
+extern const std::unordered_map<std::string_view, int> g_Symbols;
 
 }
 

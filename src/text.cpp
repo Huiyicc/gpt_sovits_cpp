@@ -15,16 +15,16 @@
 
 namespace GPTSovits {
 
-static auto g_jieba = []() {
-  PrintInfo("Init CPPJieba.");
-  return std::make_shared<cppjieba::Jieba>("res/jieba_dict/jieba.dict.utf8",
-                                           "res/jieba_dict/hmm_model.utf8",
-                                           "res/jieba_dict/user.dict.utf8",
-                                           "res/jieba_dict/idf.utf8",
-                                           "res/jieba_dict/stop_words.utf8");
-}();
-
-auto g_tone_modifier = ToneSandhi(g_jieba);
+//static auto g_jieba = []() {
+//  PrintInfo("Init CPPJieba.");
+//  return std::make_shared<cppjieba::Jieba>("res/jieba_dict/jieba.dict.utf8",
+//                                           "res/jieba_dict/hmm_model.utf8",
+//                                           "res/jieba_dict/user.dict.utf8",
+//                                           "res/jieba_dict/idf.utf8",
+//                                           "res/jieba_dict/stop_words.utf8");
+//}();
+//
+//auto g_tone_modifier = ToneSandhi(g_jieba);
 
 std::vector<std::string> correct_pronunciation(const std::string &word, const std::vector<Pinyin::PinyinRes> &input) {
   std::vector<std::string> out;
@@ -54,6 +54,7 @@ std::unordered_set<std::u32string> not_erhua = {
   U"孙儿", U"侄孙儿", U"女儿", U"男儿", U"红孩儿", U"花儿", U"虫儿", U"马儿", U"鸟儿", U"猪儿", U"猫儿",
   U"狗儿", U"少儿"
 };
+
 
 std::pair<std::vector<std::string>, std::vector<std::string>>
 merge_erhua(std::vector<std::string> initials,
@@ -105,6 +106,15 @@ _g2p(const std::vector<std::u32string> &segments) {
   std::vector<std::string> initials;
   std::vector<std::string> finals;
   std::vector<std::string> phones_list;
+  static auto jieba = []() {
+    PrintInfo("Init CPPJieba.");
+    return std::make_shared<cppjieba::Jieba>("res/jieba_dict/jieba.dict.utf8",
+                                             "res/jieba_dict/hmm_model.utf8",
+                                             "res/jieba_dict/user.dict.utf8",
+                                             "res/jieba_dict/idf.utf8",
+                                             "res/jieba_dict/stop_words.utf8");
+  }();
+  static auto tone_modifier = ToneSandhi(jieba);
   static auto g2p_man = []() {
     PrintInfo("Init cpp-pinyin.");
     return std::make_unique<Pinyin::Pinyin>();
@@ -115,7 +125,7 @@ _g2p(const std::vector<std::u32string> &segments) {
     std::vector<std::vector<std::string>> finalss;
     auto seg = U32StringToString(segU32);
     std::vector<std::pair<std::string, std::string>> seg_cut;
-    g_jieba->Tag(seg, seg_cut);
+    jieba->Tag(seg, seg_cut);
     auto pinyins = g2p_man->hanziToPinyin(seg, Pinyin::ManTone::Style::TONE3, Pinyin::Error::Default, true, false,
                                           true);
 
@@ -137,7 +147,7 @@ _g2p(const std::vector<std::u32string> &segments) {
       // 多音字消歧
       auto word_pinyins = correct_pronunciation(word, lpy);
       for (auto &pinyin: word_pinyins) {
-        if (!pinyin.empty() && isalpha(pinyin[0])) {
+        if (!pinyin.empty() && safe_isalpha(pinyin[0])) {
           auto lp = Pinyin::getInitials(pinyin);
           sub_initials.emplace_back(lp);
           sub_finals.emplace_back(pinyin.substr(lp.size()));
@@ -147,7 +157,7 @@ _g2p(const std::vector<std::u32string> &segments) {
         }
       }
       pre_word_length = now_word_length;
-      sub_finals = g_tone_modifier.modified_tone(u32Word, pos, sub_finals);
+      sub_finals = tone_modifier.modified_tone(u32Word, pos, sub_finals);
       // 儿化
       auto rs = merge_erhua(sub_initials, sub_finals, u32Word, pos);
       sub_initials = std::move(rs.first);
@@ -258,6 +268,17 @@ g2p(const std::string &text) {
   return _g2p(sentences);
 }
 
+std::vector<int> cleaned_text_to_sequence(const std::vector<std::string> &phones) {
+  std::vector<int> res;
+  for (auto &phone: phones) {
+    auto it = g_Symbols.find(phone);
+    if (it != g_Symbols.end()) {
+      res.push_back(it->second);
+    }
+  }
+  return std::move(res);
+}
+
 G2PRes CleanText(const std::string &text) {
   auto norm_text = text_normalize(text);
   auto [phones, word2ph] = g2p(norm_text);
@@ -266,18 +287,41 @@ G2PRes CleanText(const std::string &text) {
 
   for (auto &ph: phones) {
     // 检查 ph 是否在 symbols 中
-    bool found = false;
-    for (const auto &symbol: g_Symbols) {
-      if (ph == symbol) {
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
+    if (g_Symbols.find(ph) == g_Symbols.end()) {
       ph = "UNK";
     }
   }
-  return {std::move(phones), std::move(word2ph), std::move(norm_text)};
+  std::vector<int> phone_ids = cleaned_text_to_sequence(phones);
+  return {std::move(phones), std::move(phone_ids), std::move(word2ph), std::move(norm_text)};
+}
+
+
+std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text) {
+  auto g2pRes = CleanText(text);
+
+  // 中文编码
+  auto encodeResult = gpt.m_zhBert->EncodeText(text);
+  auto textWord2ph = torch::from_blob(g2pRes.word2ph.data(), {static_cast<long>(g2pRes.word2ph.size())},
+                                      torch::kInt).to(*gpt.m_devices);
+  std::vector<torch::jit::IValue> inputs = {
+    encodeResult.TokenIds,
+    encodeResult.Masks,
+    encodeResult.TokenTypeIds,
+    textWord2ph,
+  };
+//  auto bert_seq = gpt.m_zhBert->m_module->forward(inputs).toTensor().to(torch::kCPU);
+//  auto phone_seq = torch::from_blob(g2pRes.phones.data(), {static_cast<long>(g2pRes.phones.size())},
+//                                    torch::kInt).to(torch::kCPU);
+  auto bert_seq = gpt.m_zhBert->m_module->forward(inputs).toTensor().to(*gpt.m_devices);
+  auto phone_seq = torch::from_blob(g2pRes.phone_ids.data(), {static_cast<long>(g2pRes.phone_ids.size())},
+                                    torch::kInt).to(*gpt.m_devices).unsqueeze(0);
+
+  return std::make_unique<BertRes>(
+    BertRes{
+      std::make_unique<torch::Tensor>(torch::cat({phone_seq}, 1).to(*gpt.m_devices)),
+      std::make_unique<torch::Tensor>(torch::cat({bert_seq}, 0).to(*gpt.m_devices))
+    }
+  );
 }
 
 }

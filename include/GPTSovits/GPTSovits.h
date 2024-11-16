@@ -14,22 +14,8 @@
 #include "./symbols.h"
 #include "./CNBertModel.h"
 #include "./text.h"
-namespace GPTSovits {
-
-class GPTSovits {
-  std::unique_ptr<CNBertModel> m_zhBert;
-  std::unique_ptr<torch::jit::Module> m_ssl;
-  TorchDevice m_devices;
-  explicit GPTSovits(std::unique_ptr<CNBertModel> cnBertModel,
-                     std::unique_ptr<torch::jit::Module> ssl,
-                     TorchDevice& devices);
-public:
-  static std::unique_ptr<GPTSovits> Make(std::unique_ptr<CNBertModel> cnBertModel,
-                                         std::unique_ptr<torch::jit::Module> ssl,
-                                         TorchDevice &devices);
-
-};
-
-}
+#include "./AudioTools.h"
+#include "./gpt_sovits.h"
+#include "./utils.h"
 
 #endif //_GPTSOVITS_ALL_IN_ONE_H_

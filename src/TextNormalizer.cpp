@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <GPTSovits/TextNormalizerMap.h>
 #include "utf8.h"
+#include "GPTSovits/utils.h"
 
 
 namespace GPTSovits {
@@ -58,7 +59,7 @@ std::vector<std::u32string> TextNormalizer::split(const std::u32string &text, co
 
   // 去掉每个句子的前后空格
   for (auto &sentence: sentences) {
-    boost::trim(sentence);
+    sentence = U32trim(sentence);
   }
 
   return sentences;
