@@ -23,7 +23,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   {
     auto iter = m_SpeakerCacheMap.find(name);
     if (iter != m_SpeakerCacheMap.end()) {
-
+      THROW_ERRORN("说话人已存在!");
     }
 
   }
