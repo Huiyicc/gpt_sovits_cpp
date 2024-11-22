@@ -19,20 +19,26 @@ set(CPPMODULE_LIBSAMPLERATE 1)
 include(${CPPMODULES}/all.cmake)
 
 # torch
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(Tarch_Base_Dir "F:/Engcode/c_c++/modules/libtorch/debug")
-else ()
-  set(Tarch_Base_Dir "F:/Engcode/c_c++/modules/libtorch/release")
+if(NOT TORCH_DIR)
+  message(FATAL_ERROR "TORCH_DIR not exist")
 endif ()
-set(CMAKE_PREFIX_PATH "${Tarch_Base_Dir}" ${CMAKE_PREFIX_PATH})
+set(Torch_Base_Dir ${TORCH_DIR})
+message("torch base dir: ${Torch_Base_Dir}")
+
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#  set(Torch_Base_Dir "F:/Engcode/c_c++/modules/libtorch/debug")
+#else ()
+#  set(Torch_Base_Dir "F:/Engcode/c_c++/modules/libtorch/release")
+#endif ()
+set(CMAKE_PREFIX_PATH "${Torch_Base_Dir}" ${CMAKE_PREFIX_PATH})
 find_package(Torch REQUIRED)
 include_directories(${TORCH_INCLUDE_DIRS})
-link_directories("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/lib64")
+#link_directories("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/lib64")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 #include_directories(${Tarch_Base_Dir}/include)
 
-include_directories(./include)
+include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
 AUX_SOURCE_DIRECTORY(src GPT_SOVITS_CPP_SOURCE)
 
 add_library(gpt_sovits_cpp_static STATIC ${GPT_SOVITS_CPP_SOURCE})

@@ -52,7 +52,7 @@ std::vector<std::u32string> TextNormalizer::split(const std::u32string &text, co
 
   // 使用正则表达式进行分割
   processed_text = srell::regex_replace(processed_text, SENTENCE_SPLITOR, U"$&\n");
-  boost::trim(processed_text);
+  processed_text = U32trim(processed_text);
 
   std::vector<std::u32string> sentences;
   boost::split(sentences, processed_text, boost::is_any_of(U"\n"));
