@@ -3,17 +3,18 @@
 //
 #include "GPTSovits/GPTSovits.h"
 #include "GPTSovits/TextNormalizer.h"
+#include <filesystem>
 
 namespace GPTSovits {
 
 std::unique_ptr<GPTSovits>
 GPTSovits::Make(std::unique_ptr<CNBertModel> cnBertModel,
                 std::unique_ptr<torch::jit::Module> ssl,
-                TorchDevice &devices) {
+                std::shared_ptr<TorchDevice> devices) {
   auto p = std::unique_ptr<GPTSovits>(new GPTSovits());
   p->m_zhBert = std::move(cnBertModel);
   p->m_ssl = std::move(ssl);
-  p->m_devices = std::make_unique<TorchDevice>(devices);
+  p->m_devices = devices;
   return p;
 };
 
@@ -40,6 +41,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
     }
     gpt_model = m_SpeakerModelCacheMap[modelPath].get();
   }
+
   PrintInfo("Load Model {} Done.", modelPath);
   auto audio = AudioTools::FromFile(audioPath);
   auto samples = audio->ReadSamples();
@@ -67,7 +69,8 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   tempInfo->Audio32k = Resample(*audio, 32000);
   {
     torch::NoGradGuard no_grad;
-    tempInfo->SSLContent = std::make_unique<torch::Tensor>(m_ssl->forward({*tempInfo->Audio16k}).toTensor());
+    tempInfo->SSLContent = std::make_unique<torch::Tensor>(
+      m_ssl->forward({*tempInfo->Audio16k}).toTensor().to(*m_devices));
 
     tempInfo->RefBert = GetPhoneAndBert(*this, refText);
     tempInfo->GPTSovitsModel = gpt_model;
@@ -76,6 +79,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
     return *m_SpeakerCacheMap[name];
   }
 };
+
 
 std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, const std::string &targetText) {
   PrintDebug("start infer");
@@ -90,6 +94,9 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
   {
     torch::NoGradGuard no_grad;
     auto bertRes = GetPhoneAndBert(*this, targetText);
+//    bool profiling_mode = torch::jit::getProfilingMode() = false;
+
+//    torch::autograd::profiler::RecordProfile guard("gemfield/gemfield.pt.trace.json");
     std::vector<torch::IValue> inputs = {
       *speaker->SSLContent,
       *speaker->Audio32k,
@@ -98,8 +105,19 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
       *speaker->RefBert->BertSeq,
       *bertRes->BertSeq,
     };
-    auto result = speaker->GPTSovitsModel->forward(inputs).toTensor().to(torch::kCPU);
+    auto start = std::chrono::high_resolution_clock::now();
+    auto result_v = speaker->GPTSovitsModel->forward(inputs);
 
+//    PrintDebug("Profiling mode is: {}" ,(profiling_mode ? "Enabled" : "Disabled"));
+//    torch::jit::setProfilingMode(false);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    PrintDebug("t:{} ms", duration.count());
+    start = std::chrono::high_resolution_clock::now();
+    auto result = result_v.toTensor().to(torch::kCPU);
+    end = std::chrono::high_resolution_clock::now();
+    duration = end - start;
+    PrintDebug("t:{} ms", duration.count());
     std::vector<float> audio_data(result.data_ptr<float>(), result.data_ptr<float>() + result.numel());
     return AudioTools::FromByte(audio_data, 32000);
 

@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.29)
 project(gpt_sovits_cpp)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  if(MSVC)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox")
+  else ()
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+  endif ()
+  set(CAFFE2_USE_CUDNN ON)
+  set(USE_CUSPARSELT OFF)
+endif ()
 
 # 依赖库引入
 set(CMAKE_CXX_STANDARD 20)

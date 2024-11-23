@@ -31,7 +31,7 @@ public:
                                                std::string_view tokenizer_path,
                                                std::string_view ssl_path);
 
-  std::unique_ptr<GPTSovits> Build(TorchDevice &device);
+  std::unique_ptr<GPTSovits> Build(std::shared_ptr<TorchDevice> device);
 
 };
 

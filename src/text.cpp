@@ -300,7 +300,7 @@ std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text
   auto g2pRes = CleanText(text);
 
   // 中文编码
-  auto encodeResult = gpt.m_zhBert->EncodeText(text);
+  auto encodeResult = gpt.m_zhBert->EncodeText(g2pRes.norm_text);
   auto textWord2ph = torch::from_blob(g2pRes.word2ph.data(), {static_cast<long>(g2pRes.word2ph.size())},
                                       torch::kInt).to(*gpt.m_devices);
   std::vector<torch::jit::IValue> inputs = {

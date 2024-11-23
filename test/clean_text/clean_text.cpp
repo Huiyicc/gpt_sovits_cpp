@@ -22,8 +22,9 @@ std::string format_vector(const std::vector<T>& vec) {
 int main() {
   try {
     std::vector<std::string> test_strs = {
-//      "你好%啊啊啊额妈妈hello、还是到付红四方。\n2021年6月25日,今天32°C",
+      "你好%啊啊啊额妈妈hello、还是到付红四方。\n2021年6月25日,今天32°C",
       "叹息声一声接着一声传出，木兰对着房门织布。",
+      "今天是2021年11月23日,天气晴,气温32°C.",
     };
 
     for (auto&text :test_strs) {

@@ -20,7 +20,7 @@ class CNBertModel;
 class GPTSovits {
   std::unique_ptr<CNBertModel> m_zhBert;
   std::unique_ptr<torch::jit::Module> m_ssl;
-  std::unique_ptr<TorchDevice> m_devices;
+  std::shared_ptr<TorchDevice> m_devices;
 
   GPTSovits() {};
 
@@ -45,7 +45,7 @@ public:
 
   static std::unique_ptr<GPTSovits> Make(std::unique_ptr<CNBertModel> cnBertModel,
                                          std::unique_ptr<torch::jit::Module> ssl,
-                                         TorchDevice &devices);
+                                         std::shared_ptr<TorchDevice> devices);
 
   const SpeakerInfo &CreateSpeaker(const std::string &name, const std::string &modelPath, const std::string &audioPath,
                                    const std::string &refText);
