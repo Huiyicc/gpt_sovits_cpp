@@ -112,12 +112,10 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
 //    torch::jit::setProfilingMode(false);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
-    PrintDebug("t:{} ms", duration.count());
     start = std::chrono::high_resolution_clock::now();
     auto result = result_v.toTensor().to(torch::kCPU);
     end = std::chrono::high_resolution_clock::now();
     duration = end - start;
-    PrintDebug("t:{} ms", duration.count());
     std::vector<float> audio_data(result.data_ptr<float>(), result.data_ptr<float>() + result.numel());
     return AudioTools::FromByte(audio_data, 32000);
 
