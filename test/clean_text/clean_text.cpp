@@ -18,6 +18,10 @@ std::string format_vector(const std::vector<T>& vec) {
   return result;
 }
 
+// 切分中英混合
+void spl_text() {
+
+}
 
 int main() {
   try {

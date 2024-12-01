@@ -1,5 +1,5 @@
 #include "GPTSovits/polyphonic.h"
-#include "GPTSovits/exception.h"
+#include "GPTSovits/Utils/exception.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <filesystem>

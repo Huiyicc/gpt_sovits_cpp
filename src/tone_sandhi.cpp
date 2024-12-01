@@ -6,7 +6,8 @@
 #include <utility>
 #include "cppjieba/Jieba.hpp"
 #include "GPTSovits/TextNormalizer.h"
-#include "GPTSovits/utils.h"
+#include "GPTSovits/Text/Utils.h"
+#include "GPTSovits/Text/Coding.h"
 
 namespace GPTSovits {
 
@@ -31,7 +32,7 @@ std::vector<std::string> ToneSandhi::bu_sandhi(const std::u32string &word, std::
 
 std::vector<std::u32string> ToneSandhi::splitWord(const std::u32string &word) {
   std::vector<std::string> wordList;
-  auto uWord = U32StringToString(word);
+  auto uWord = Text::U32StringToString(word);
   m_jieba->CutForSearch(uWord, wordList);
 
   // Sort wordList by length in ascending order
@@ -45,10 +46,10 @@ std::vector<std::u32string> ToneSandhi::splitWord(const std::u32string &word) {
   std::vector<std::u32string> newWordList;
   if (firstBeginIdx == 0) {
     std::string secondSubword = uWord.substr(firstSubword.size());
-    newWordList = {StringToU32String(firstSubword), StringToU32String(secondSubword)};
+    newWordList = {Text::StringToU32String(firstSubword), Text::StringToU32String(secondSubword)};
   } else {
     std::string secondSubword = uWord.substr(0, word.size() - firstSubword.size());
-    newWordList = {StringToU32String(secondSubword), StringToU32String(firstSubword)};
+    newWordList = {Text::StringToU32String(secondSubword), Text::StringToU32String(firstSubword)};
   }
 
   return newWordList;
@@ -106,7 +107,7 @@ ToneSandhi::neural_sandhi(const std::u32string &word, const std::string &pos, st
   } else if (word.size() > 1 && std::u32string_view(U"来去").find(word.back()) != std::u32string::npos &&
              std::u32string_view(U"上下进出回过起开").find(word[word.size() - 2]) != std::u32string::npos) {
     finals.back() = finals.back().substr(0, finals.back().size() - 1) + "5";
-  } else if ((ge_idx >= 1 && (safe_isdigit(word[ge_idx - 1]) ||
+  } else if ((ge_idx >= 1 && (Text::safe_isdigit(word[ge_idx - 1]) ||
                               std::u32string_view(U"几有两半多各整每做是").find(word[ge_idx - 1]) !=
                               std::u32string::npos)) || word == U"个") {
     finals[ge_idx] = finals[ge_idx].substr(0, finals[ge_idx].size() - 1) + "5";
@@ -142,7 +143,7 @@ ToneSandhi::neural_sandhi(const std::u32string &word, const std::string &pos, st
 std::vector<std::string> ToneSandhi::yi_sandhi(const std::u32string &word, std::vector<std::string> &finals) {
   // "一" in number sequences, e.g. 一零零, 二一零
   if (word.find(U'一') != std::u32string::npos && std::all_of(word.begin(), word.end(), [](char32_t c) {
-    return c == U'一' || safe_isdigit(char(c));
+    return c == U'一' || Text::safe_isdigit(char(c));
   })) {
     return finals;
   }

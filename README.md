@@ -26,6 +26,8 @@ make
 
 # 其他
 
+- wwindows下只支持MSVC(libtorch)
+
 # 感谢以下项目做的前置代码工作
 
 [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS) **GPT Sovits原项目**  

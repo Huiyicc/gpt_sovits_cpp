@@ -1,7 +1,7 @@
 //
 // Created by 19254 on 24-11-12.
 //
-#include "GPTSovits/exception.h"
+#include "GPTSovits/Utils/exception.h"
 #include "GPTSovits/AudioTools.h"
 #include "sndfile.h"
 #include <stdexcept>

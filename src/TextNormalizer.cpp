@@ -8,34 +8,22 @@
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
 #include <GPTSovits/TextNormalizerMap.h>
-#include "utf8.h"
-#include "GPTSovits/utils.h"
+#include "GPTSovits/Text/Utils.h"
+#include <GPTSovits/Text/Coding.h>
 
 
 namespace GPTSovits {
 
-std::u32string StringToU32String(const std::string &text) {
-  std::u32string out;
-  utf8::utf8to32(text.begin(), text.end(), std::back_inserter(out));
-  return out;
-};
-
-std::string U32StringToString(const std::u32string &text) {
-  std::string out;
-  utf8::utf32to8(text.begin(), text.end(), std::back_inserter(out));
-  return out;
-}
-
 std::string text_normalize(const std::string &text) {
   auto tx = TextNormalizer();
-  auto sentences = tx.Normalize(StringToU32String(text));
+  auto sentences = tx.Normalize(Text::StringToU32String(text));
   std::u32string dest_text;
   for (auto &sentence: sentences) {
     dest_text+=replace_punctuation(sentence);
   }
   // 避免重复标点引起的参考泄露
   dest_text = replace_consecutive_punctuation(dest_text);
-  return U32StringToString(dest_text);
+  return Text::U32StringToString(dest_text);
 }
 
 std::vector<std::u32string> TextNormalizer::split(const std::u32string &text, const std::string &lang) {
@@ -52,14 +40,14 @@ std::vector<std::u32string> TextNormalizer::split(const std::u32string &text, co
 
   // 使用正则表达式进行分割
   processed_text = srell::regex_replace(processed_text, SENTENCE_SPLITOR, U"$&\n");
-  processed_text = U32trim(processed_text);
+  processed_text = Text::U32trim(processed_text);
 
   std::vector<std::u32string> sentences;
   boost::split(sentences, processed_text, boost::is_any_of(U"\n"));
 
   // 去掉每个句子的前后空格
   for (auto &sentence: sentences) {
-    sentence = U32trim(sentence);
+    sentence = Text::U32trim(sentence);
   }
 
   return sentences;

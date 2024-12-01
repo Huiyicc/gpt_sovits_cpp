@@ -25,6 +25,7 @@ set(CPPMODULE_SRELL 1)
 set(CPPMODULE_LIBSNDFILE 1)
 set(CPPMODULE_CPPJIEBA 1)
 set(CPPMODULE_LIBSAMPLERATE 1)
+set(CPPMODULE_CLD2 1)
 include(${CPPMODULES}/all.cmake)
 
 # torch
@@ -48,7 +49,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 #include_directories(${Tarch_Base_Dir}/include)
 
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
-AUX_SOURCE_DIRECTORY(src GPT_SOVITS_CPP_SOURCE)
+file(GLOB_RECURSE GPT_SOVITS_CPP_SOURCE "src/*.cpp")
 
 add_library(gpt_sovits_cpp_static STATIC ${GPT_SOVITS_CPP_SOURCE})
 target_link_libraries(gpt_sovits_cpp_static PRIVATE ${TORCH_LIBRARIES} ${CPPMODULE_LINK_LIBRARIES_ALL})
@@ -76,3 +77,9 @@ target_link_libraries(gpt_sovits_test_cli PRIVATE gpt_sovits_cpp_static)
 AUX_SOURCE_DIRECTORY(test/clean_text GPT_SOVITS_TEST_CLEAN_TEXT_SOURCE)
 add_executable(gpt_sovits_test_clean_text ${GPT_SOVITS_TEST_CLEAN_TEXT_SOURCE})
 target_link_libraries(gpt_sovits_test_clean_text PRIVATE gpt_sovits_cpp_static)
+
+
+AUX_SOURCE_DIRECTORY(test/detect_list_lang GPT_SOVITS_TEST_DETECT_LIST_LANG_SOURCE)
+add_executable(gpt_sovits_test_detect_list_lang ${GPT_SOVITS_TEST_DETECT_LIST_LANG_SOURCE})
+target_link_libraries(gpt_sovits_test_detect_list_lang PRIVATE gpt_sovits_cpp_static)
+

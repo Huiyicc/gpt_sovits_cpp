@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "GPTSovits/CNBertModel.h"
-#include "GPTSovits/exception.h"
+#include "GPTSovits/Utils/exception.h"
 #include "GPTSovits/gpt_sovits.h"
 
 namespace GPTSovits {

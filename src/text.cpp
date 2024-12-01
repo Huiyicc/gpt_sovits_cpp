@@ -11,7 +11,9 @@
 #include <unordered_map>
 #include "cppjieba/Jieba.hpp"
 #include "GPTSovits/tone_sandhi.h"
+#include "GPTSovits/Text/Coding.h"
 #include <boost/algorithm/string.hpp>
+#include "CLD2/compact_lang_det.h"
 
 namespace GPTSovits {
 
@@ -123,7 +125,7 @@ _g2p(const std::vector<std::u32string> &segments) {
   for (auto &segU32: segments) {
     std::vector<std::vector<std::string>> initialss;
     std::vector<std::vector<std::string>> finalss;
-    auto seg = U32StringToString(segU32);
+    auto seg = Text::U32StringToString(segU32);
     std::vector<std::pair<std::string, std::string>> seg_cut;
     jieba->Tag(seg, seg_cut);
     auto pinyins = g2p_man->hanziToPinyin(seg, Pinyin::ManTone::Style::TONE3, Pinyin::Error::Default, true, false,
@@ -131,7 +133,7 @@ _g2p(const std::vector<std::u32string> &segments) {
 
     auto pre_word_length = 0;
     for (auto &[word, pos]: seg_cut) {
-      auto u32Word = StringToU32String(word);
+      auto u32Word = Text::StringToU32String(word);
 
       auto now_word_length = pre_word_length + u32Word.size();
       if (pos == "eng") {
@@ -147,7 +149,7 @@ _g2p(const std::vector<std::u32string> &segments) {
       // 多音字消歧
       auto word_pinyins = correct_pronunciation(word, lpy);
       for (auto &pinyin: word_pinyins) {
-        if (!pinyin.empty() && safe_isalpha(pinyin[0])) {
+        if (!pinyin.empty() && Text::safe_isalpha(pinyin[0])) {
           auto lp = Pinyin::getInitials(pinyin);
           sub_initials.emplace_back(lp);
           sub_finals.emplace_back(pinyin.substr(lp.size()));
@@ -249,7 +251,7 @@ _g2p(const std::vector<std::u32string> &segments) {
 
 std::tuple<std::vector<std::string>, std::vector<int>>
 g2p(const std::string &text) {
-  auto inSentence = StringToU32String(text);
+  auto inSentence = Text::StringToU32String(text);
   srell::u32regex re(UR"((?<=[!?…,.-])\s*)");
   srell::u32sregex_token_iterator it(inSentence.begin(), inSentence.end(), re, -1);
   srell::u32sregex_token_iterator reg_end;
@@ -283,7 +285,7 @@ G2PRes CleanText(const std::string &text) {
   auto norm_text = text_normalize(text);
   auto [phones, word2ph] = g2p(norm_text);
   assert(phones.size() == std::accumulate(word2ph.begin(), word2ph.end(), 0));
-  assert(StringToU32String(norm_text).size() == word2ph.size());
+  assert(Text::StringToU32String(norm_text).size() == word2ph.size());
 
   for (auto &ph: phones) {
     // 检查 ph 是否在 symbols 中
@@ -322,6 +324,47 @@ std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text
       std::make_unique<torch::Tensor>(torch::cat({bert_seq}, 0).to(*gpt.m_devices))
     }
   );
+}
+
+std::vector<std::string> SplitTextLang(const std::string &input) {
+  static auto tokenizer = []() {
+    std::string fpath = "res/tokenizer_many_lang.json";
+    std::ifstream file(fpath);
+    if (!file.is_open()) {
+      THROW_ERRORN("open tokenizer fail!\nFrom: {}", fpath);
+    }
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::string data(size, 0);
+    file.read(data.data(), size);
+    return tokenizers::Tokenizer::FromBlobJSON(data);
+  }();
+  // 预处理文本
+  std::vector<std::string> result;
+  srell::u32regex spReg(UR"([.;?!。？！;：…])");
+
+  // 按段分句
+  std::vector<std::string> splitText;
+  boost::split(splitText, input, boost::is_any_of("\n"));
+
+  for (auto &textLine: splitText) {
+    std::string testText;
+    auto ids = tokenizer->Encode(textLine, false);
+    for (auto &id: ids) {
+
+      bool is_reliable;
+      int validPrefixBytes;
+      testText += tokenizer->Decode({id});
+      auto lange = CLD2::DetectLanguageCheckUTF8(testText.data(), testText.size(), true, &is_reliable,
+                                                 &validPrefixBytes);
+
+    }
+    auto u32 = Text::StringToU32String(testText);
+    PrintDebug("end: {}", testText);
+  }
+
+  return result;
 }
 
 }

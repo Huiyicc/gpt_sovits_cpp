@@ -10,8 +10,7 @@
 
 namespace GPTSovits {
 
-std::u32string StringToU32String(const std::string&text);
-std::string U32StringToString(const std::u32string &text);
+
 
 std::string text_normalize(const std::string &text);
 

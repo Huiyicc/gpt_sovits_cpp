@@ -2,6 +2,7 @@
 // Created by 19254 on 24-11-10.
 //
 #include "GPTSovits/GPTSovits.h"
+#include "GPTSovits/Text/Coding.h"
 #include "GPTSovits/TextNormalizer.h"
 #include <filesystem>
 
@@ -46,15 +47,15 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   auto audio = AudioTools::FromFile(audioPath);
   auto samples = audio->ReadSamples();
   auto tempInfo = std::make_unique<SpeakerInfo>();
-  tempInfo->ModifiedTextU32 = StringToU32String(refText);
+  tempInfo->ModifiedTextU32 = Text::StringToU32String(refText);
   if (tempInfo->ModifiedTextU32.empty() ||
       (tempInfo->ModifiedTextU32.back() != U'。' && tempInfo->ModifiedTextU32.back() != U'.')) {
     tempInfo->ModifiedTextU32 += U".";
   }
-  tempInfo->ModifiedText = U32StringToString(tempInfo->ModifiedTextU32);
+  tempInfo->ModifiedText = Text::U32StringToString(tempInfo->ModifiedTextU32);
 
-  auto new_audio_16k = audio->ReSample(16000);
-  auto new_audio_sample_16k = new_audio_16k->ReadSamples();
+//  auto new_audio_16k = audio->ReSample(16000);
+//  auto new_audio_sample_16k = new_audio_16k->ReadSamples();
 //  tempInfo->Audio16k = std::make_unique<torch::jit::IValue>(
 //    torch::from_blob(new_audio_sample_16k.data(),
 //                     {static_cast<long>(new_audio_sample_16k.size())},

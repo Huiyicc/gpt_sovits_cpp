@@ -28,6 +28,8 @@ g2p(const std::string &text);
 
 std::unique_ptr<BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text);
 
+std::vector<std::string> SplitTextLang(const std::string&input);
+
 }
 
 #endif //GPT_SOVITS_CPP_TEXT_H
