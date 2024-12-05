@@ -2,7 +2,7 @@
 // Created by 19254 on 24-11-6.
 //
 #include "GPTSovits/GPTSovits.h"
-
+#include <torch/torch.h>
 
 namespace GPTSovits {
 std::shared_ptr<TorchDevice> GetDefaultDevice() {
@@ -98,6 +98,8 @@ std::string DeviceToString(const TorchDevice& device) {
       break;
     case c10::DeviceType::PrivateUse1 :
       outd += "PrivateUse1";
+      break;
+    case c10::DeviceType::COMPILE_TIME_MAX_DEVICE_TYPES:
       break;
   }
 

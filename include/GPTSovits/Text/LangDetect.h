@@ -49,7 +49,7 @@ public:
     return m_instance;
   }
 
-  std::pair<bool, std::string> Detect(const std::string &defaultLang, const std::string &input);
+  std::pair<bool, std::string> Detect(const std::string &input);
 
   /**
    * @brief 根据输入字符串和默认语言进行语言检测和分句。
@@ -83,6 +83,8 @@ public:
    * @endcode
    */
   std::vector<LanguageSentence> DetectSplit(const std::string &defaultLang, const std::string &input);
+
+  std::vector<std::string> Tokenize(const std::string &text, bool add_special_tokens);
 
 private:
   std::unique_ptr<tokenizers::Tokenizer> m_tokenizer;

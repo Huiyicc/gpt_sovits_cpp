@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <utility>
 #include "cppjieba/Jieba.hpp"
-#include "GPTSovits/TextNormalizer.h"
+#include <GPTSovits/Text/TextNormalizer/zh.h>
 #include "GPTSovits/Text/Utils.h"
 #include "GPTSovits/Text/Coding.h"
 

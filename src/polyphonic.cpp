@@ -16,7 +16,11 @@ get_polyphonic_map() {
   }
   if (polyphonic_data.empty()) {
     auto path = std::filesystem::current_path() / "res" / "polyphonic.data";
+    #ifdef _HOST_WINDOWS_
+    std::ifstream file(path.wstring());
+    #else
     std::ifstream file(path);
+    #endif
     if (!file.is_open()) {
       THROW_ERRORN("字典文件不存在!\nFrom:{}", path.string());
     }

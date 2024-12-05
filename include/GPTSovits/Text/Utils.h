@@ -75,6 +75,7 @@ void SplitByRegex(std::vector<std::u32string> &result, const std::u32string &sou
  * @endcode
  */
 bool FindEnd(const std::string &source, const std::vector<char> &checks);
+bool FindEnd(const std::string &source, const std::vector<std::string> &checks);
 /**
  * @brief 检查给定的源字符串是否以指定的字符结尾。
  *
@@ -95,6 +96,7 @@ bool FindEnd(const std::string &source, const std::vector<char> &checks);
  * @endcode
  */
 bool FindEnd(const std::u32string &source, const std::vector<char32_t> &checks);
+bool FindEnd(const std::u32string &source, const std::vector<std::u32string> &checks);
 
 /**
  * @brief 检查给定的字符是否为字母字符。
@@ -128,6 +130,8 @@ bool safe_isdigit(int c);
  * @return 如果字符是空白字符，返回 true；否则返回 false。
  */
 bool safe_isspace(char32_t ch);
+
+bool ispunct(char32_t ch);
 
 /**
  * @brief 修剪字符串两端的空格字符。

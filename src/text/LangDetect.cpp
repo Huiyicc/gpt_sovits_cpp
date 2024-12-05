@@ -41,7 +41,10 @@ std::vector<std::pair<char32_t, char32_t>> g_symbol_scope = {
 
 bool has_symbol(const std::u32string &input) {
   static std::set<char32_t> chars = {U',', U'.', U';', U'?', U'!', U'、', U'，', U'。', U'？', U'！',
-                                     U';', U'：', U'…', U'”', U'“', U'‘', U'’', U'"', U'\'', U'·', U'°'};
+                                     U';', U'：', U'…', U'”', U'“', U'‘', U'’', U'"', U'\'', U'·', U'°',
+                                     U'(', U')', U'-', U'+', U'*', U'/', U'%', U'&', U'|', U'^', U'~', U'<', U'>', U'=',
+                                     U'!', U'@', U'#', U'$', U'%', U'^', U'&', U'*', U'(', U')', U'[', U']', U'{', U'}',
+                                     U':'};
   auto res = std::ranges::any_of(chars, [&input](char32_t c) {
     return input.find(c) != std::u32string::npos;
   });
@@ -258,7 +261,12 @@ std::map<std::string_view, LangConfig> g_langConfigs = {
 
 LangDetect::LangDetect() {
   std::filesystem::path tp = std::filesystem::current_path() / "res" / "tokenizer_many_lang.json";
+  #ifdef _HOST_WINDOWS_
+  std::ifstream file(tp.wstring());
+  #else
   std::ifstream file(tp);
+  #endif
+
   if (!file.is_open()) {
     THROW_ERROR("打开Tokenizer失败!\nFrom: {}", tp.string());
   }
@@ -275,7 +283,7 @@ LangDetect::LangDetect() {
   m_tokenizer = tokenizers::Tokenizer::FromBlobJSON(*data);
 };
 
-std::pair<bool, std::string> LangDetect::Detect(const std::string &defaultLang, const std::string &input) {
+std::pair<bool, std::string> LangDetect::Detect(const std::string &input) {
   bool is_reliable;
   auto resLang = CLD2::DetectLanguage(input.c_str(), input.size(), true, &is_reliable);
 
@@ -286,7 +294,7 @@ std::pair<bool, std::string> LangDetect::Detect(const std::string &defaultLang, 
 
 std::pair<bool, std::string>
 LangDetect::detect_word(const std::string &defaultLang, const std::string &word, const std::u32string &uword) {
-  auto [isReliable, lang] = Detect(defaultLang, word);
+  auto [isReliable, lang] = Detect(word);
   if (isReliable) {
     // 可信
 //    PrintDebug("[{} ,{}]{}", isReliable, lang, word);
@@ -335,7 +343,18 @@ LangDetect::detect_word(const std::string &defaultLang, const std::string &word,
   return {isReliable, lang};
 }
 
-std::vector<LangDetect::LanguageSentence> LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input) {
+
+std::vector<std::string> LangDetect::Tokenize(const std::string &text, bool add_special_tokens) {
+  auto tokens = m_tokenizer->Encode(text, add_special_tokens);
+  std::vector<std::string> res;
+  for (auto &token: tokens) {
+    res.emplace_back(m_tokenizer->Decode({token}));
+  }
+  return res;
+};
+
+std::vector<LangDetect::LanguageSentence>
+LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input) {
   if (g_langConfigs.find(defaultLang) == g_langConfigs.end()) {
     THROW_ERROR("不支持的语言: {}", defaultLang);
   }
@@ -360,17 +379,40 @@ std::vector<LangDetect::LanguageSentence> LangDetect::DetectSplit(const std::str
       continue;
     }
     // 分词
-    auto tokens = m_tokenizer->Encode(handelStr, false);
+    auto tokens = m_tokenizer->Encode(handelStr, true);
+    int ti = 0;
     for (auto &token: tokens) {
       auto word = m_tokenizer->Decode({token});
+      if (ti == 0 && word == "<bos>") {
+        continue;
+      }
+      ti++;
       auto handStr = boost::trim_copy(word);
       auto uwordRaw = StringToU32String(word);
       auto uword = U32trim(uwordRaw);
+      if (uword.empty()) {
+        // 空格
+        // 保留空格
+        if (sentences.empty()) {
+          sentences.emplace_back(word, uwordRaw, defaultLang);
+        } else {
+          sentences.back().sentence += word;
+          sentences.back().u32sentence += uwordRaw;
+        }
+        continue;
+      }
       auto [isReliable, lang] = detect_word(defaultLang, handStr, uword);
       if (!isReliable) {
         // 不认识
         // 抛出警告
-        PrintInfo("WARNING: 语言检测失败.\nFrom: {}", defaultLang, handStr);
+        PrintDebug("WARNING: 语言检测失败.\nFrom: {} | {}", defaultLang, handStr);
+        // 警告归警告,还是要添加的
+        if (sentences.empty()) {
+          sentences.emplace_back(handStr, uwordRaw, defaultLang);
+        } else {
+          sentences.back().sentence += handStr;
+          sentences.back().u32sentence += uwordRaw;
+        }
         continue;
       }
       // 不支持的语言当做defaultLang

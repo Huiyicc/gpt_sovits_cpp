@@ -3,20 +3,35 @@
 //
 #include "GPTSovits/GPTSovits.h"
 #include "GPTSovits/Text/Coding.h"
-#include "GPTSovits/TextNormalizer.h"
-#include <filesystem>
+#include <torch/torch.h>
+#include <torch/script.h>
+#include <GPTSovits/Text/TextNormalizer/zh.h>
+#include <GPTSovits/G2P/g2p.h>
+
+#include <utility>
 
 namespace GPTSovits {
 
+GPTSovits::GPTSovits() {}
+
+GPTSovits::~GPTSovits() {}
+
 std::unique_ptr<GPTSovits>
-GPTSovits::Make(std::unique_ptr<CNBertModel> cnBertModel,
-                std::unique_ptr<torch::jit::Module> ssl,
+GPTSovits::Make(const std::string& lang,std::unique_ptr<torch::jit::Module> ssl,
                 std::shared_ptr<TorchDevice> devices) {
   auto p = std::unique_ptr<GPTSovits>(new GPTSovits());
-  p->m_zhBert = std::move(cnBertModel);
   p->m_ssl = std::move(ssl);
   p->m_devices = devices;
+  p->m_defaultLang = lang;
   return p;
+};
+
+const std::string& GPTSovits::DefaultLang() {
+  return m_defaultLang;
+};
+
+std::shared_ptr<TorchDevice> GPTSovits::Device() {
+  return m_devices;
 };
 
 const GPTSovits::SpeakerInfo &
@@ -33,6 +48,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   {
     auto iter = m_SpeakerModelCacheMap.find(modelPath);
     if (iter == m_SpeakerModelCacheMap.end()) {
+      PrintDebug("Load mode: {}",modelPath);
       auto tmp_model = std::make_unique<torch::jit::Module>(torch::jit::load(modelPath, *m_devices));
       if (!tmp_model) {
         THROW_ERRORN("加载模型文件失败!\nFrom:{}", modelPath);
@@ -73,7 +89,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
     tempInfo->SSLContent = std::make_unique<torch::Tensor>(
       m_ssl->forward({*tempInfo->Audio16k}).toTensor().to(*m_devices));
 
-    tempInfo->RefBert = GetPhoneAndBert(*this, refText);
+    tempInfo->RefBert = G2P::GetPhoneAndBert(*this, refText);
     tempInfo->GPTSovitsModel = gpt_model;
     m_SpeakerCacheMap[name] = std::move(tempInfo);
     PrintInfo("Load Speaker {} Done.", name);
@@ -84,6 +100,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
 
 std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, const std::string &targetText) {
   PrintDebug("start infer");
+  torch::manual_seed(2576068740);
   SpeakerInfo *speaker = nullptr;
   {
     auto iter = m_SpeakerCacheMap.find(speakerName);
@@ -94,7 +111,7 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
   };
   {
     torch::NoGradGuard no_grad;
-    auto bertRes = GetPhoneAndBert(*this, targetText);
+    auto bertRes = G2P::GetPhoneAndBert(*this, targetText);
 //    bool profiling_mode = torch::jit::getProfilingMode() = false;
 
 //    torch::autograd::profiler::RecordProfile guard("gemfield/gemfield.pt.trace.json");

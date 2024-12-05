@@ -26,6 +26,11 @@ set(CPPMODULE_LIBSNDFILE 1)
 set(CPPMODULE_CPPJIEBA 1)
 set(CPPMODULE_LIBSAMPLERATE 1)
 set(CPPMODULE_CLD2 1)
+#set(CPPMODULE_NUMCPP 1)
+set(CPPMODULE_XTL 1)
+set(CPPMODULE_XTENSOR_BLAS 1)
+set(CPPMODULE_XTENSOR 1)
+
 include(${CPPMODULES}/all.cmake)
 
 # torch
@@ -52,6 +57,7 @@ include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB_RECURSE GPT_SOVITS_CPP_SOURCE "src/*.cpp")
 
 add_library(gpt_sovits_cpp_static STATIC ${GPT_SOVITS_CPP_SOURCE})
+#target_compile_definitions(gpt_sovits_cpp_static PRIVATE _ISLIBRARY_)
 target_link_libraries(gpt_sovits_cpp_static PRIVATE ${TORCH_LIBRARIES} ${CPPMODULE_LINK_LIBRARIES_ALL})
 if (MSVC)
   file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
@@ -82,4 +88,9 @@ target_link_libraries(gpt_sovits_test_clean_text PRIVATE gpt_sovits_cpp_static)
 AUX_SOURCE_DIRECTORY(test/detect_list_lang GPT_SOVITS_TEST_DETECT_LIST_LANG_SOURCE)
 add_executable(gpt_sovits_test_detect_list_lang ${GPT_SOVITS_TEST_DETECT_LIST_LANG_SOURCE})
 target_link_libraries(gpt_sovits_test_detect_list_lang PRIVATE gpt_sovits_cpp_static)
+
+
+AUX_SOURCE_DIRECTORY(test/g2p GPT_SOVITS_TEST_G2P_SOURCE)
+add_executable(gpt_sovits_test_g2p ${GPT_SOVITS_TEST_G2P_SOURCE})
+target_link_libraries(gpt_sovits_test_g2p PRIVATE gpt_sovits_cpp_static)
 

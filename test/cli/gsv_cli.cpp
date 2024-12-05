@@ -9,46 +9,43 @@ int main() {
   try {
     auto currentPath = std::filesystem::current_path().string();
     PrintDebug("Current Path:{}", currentPath);
-    auto gpt_config = GPTSovits::GPTSovitsConfig::Make(
-      currentPath + R"(/../test/cli/model_base/bert_model.pt)",
-      currentPath + R"(/../test/cli/model_base/tokenizer.json)",
-      currentPath + R"(/../test/cli/model_base/ssl_model.241124.pt)");
-
     auto device = GPTSovits::GetDefaultDevice();
-//    auto s = device.str();
     PrintDebug("device: {}", GPTSovits::DeviceToString(*device));
-    auto gpt_sovits = gpt_config->Build(device);
-    gpt_sovits->CreateSpeaker("firefly",
-                              currentPath + "/../test/cli/model/gpt_sovits_model_241124.pt",
-                              currentPath + "/../test/cli/model/ref.wav",
-                              "虽然我也没太搞清楚状况…但他说，似乎只有直率、纯真、有童心的小孩子才能看见它……");
-    // int num_iterations = 10;
-    // // 计时开始
-    // auto start = std::chrono::high_resolution_clock::now();
-    // for (int i = 0; i < num_iterations; ++i) {
-    //   auto start_ = std::chrono::high_resolution_clock::now();
-    //   gpt_sovits->Infer("firefly","叹息声一声接着一声传出，木兰对着房门织布。");
-    //   // 计时结束
-    //   auto end_ = std::chrono::high_resolution_clock::now();
-    //   std::chrono::duration<double, std::milli> elapsed = end_ - start_;
-    //   PrintInfo("第 {} 次耗时: {} ms",i,elapsed.count());
-    // }
-    // auto resAudio = gpt_sovits->Infer("firefly","叹息声一声接着一声传出，木兰对着房门织布。");
-    auto resAudio = gpt_sovits->Infer("firefly", "今天是2021年11月23日,天气晴,气温32°C.");
-//    auto resAudio = gpt_sovits->Infer("firefly", "今天是二零二一年十一月二十三日,天气晴,气温三十二度.");
-//    auto resAudio = gpt_sovits->Infer("firefly","收到王楚钦要结婚的消息时，孙颖莎正在斯洛文尼亚的饭店里吃饭。");
-    // num_iterations++;
-    // 计时结束
-    auto end = std::chrono::high_resolution_clock::now();
-    // std::chrono::duration<double> diff = end - start;
 
-    // double it_per_sec = num_iterations / diff.count();
-    // PrintInfo("Iterations: {}",num_iterations);
-    // PrintInfo("Iterations per second: {}",it_per_sec);
-    // PrintInfo("Average time per iteration: {} ms",(diff.count() * 1000) / num_iterations);
-    auto outPath = std::filesystem::current_path() / "cpp_out.wav";
-    resAudio->SaveToFile(outPath.string());
-    PrintInfo("write from {}", outPath.string());
+    GPTSovits::Bert::RegisterChinese(device,
+                                     currentPath + R"(/../test/model_base/bert_model.pt)",
+                                     currentPath + R"(/../test/model_base/tokenizer.json)");
+    GPTSovits::Bert::RegisterEnglish(device);
+
+    auto gpt_config = GPTSovits::GPTSovitsConfig::Make("zh",
+                                                       currentPath + R"(/../test/model_base/ssl_model.241124.pt)");
+    auto gpt_sovits = gpt_config->Build(device);
+
+    gpt_sovits->CreateSpeaker("firefly",
+                              currentPath + "/../test/model/gpt_sovits_model.pt",
+                              currentPath + "/../test/model/ref.wav",
+                              "我突然意识到,如果钟表匠真是无名客，那他岂不是你的老前辈？哎，你想和他拍照留个念吗？我可以帮你哦。");
+
+    std::vector<std::string> texts = {
+      "今天是2021年11月23日,天气晴,气温32°C.天下之大内有乾坤。",
+      "这个project的schedule有些问题，尤其是buffer不多。另外，cost也偏高。目前我们没法confirm手上的 resource能完全take得了。Anyway我们还是先pilot一下，再follow up最终的output，看能不能run的比较smoothly，更重要的是evaluate所有的cost能不能完全被cover掉……",
+      "The C++ support in Jupyter is powered by the xeus-cling C++ kernel.This function is used to find the length (in code points) of a UTF-8 encoded string."
+    };
+    int n = 0;
+    GPTSovits::Text::Sentence sentence;
+    sentence.AppendCallBack([&](const std::string &text) -> bool {
+      auto resAudio = gpt_sovits->Infer("firefly", text);
+      auto outPath = std::filesystem::current_path() / std::format("cpp_out_{}_{}.wav", n, n);
+      resAudio->SaveToFile(outPath.string());
+      PrintInfo("write from {}", outPath.string());
+      n++;
+      return true;
+    });
+    for (auto&text:texts) {
+      sentence.Append(text);
+    }
+    sentence.Flush();
+
   } catch (const GPTSovits::Exception &e) {
     PrintError("[{}:{}] {}", e.getFile(), e.getLine(), e.what());
   } catch (const std::exception &e) {

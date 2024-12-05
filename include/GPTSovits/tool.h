@@ -7,6 +7,10 @@
 
 #include <memory>
 
+namespace c10 {
+struct Device;
+}
+
 namespace GPTSovits {
 
 typedef c10::Device TorchDevice;

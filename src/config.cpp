@@ -2,14 +2,14 @@
 // Created by 19254 on 24-11-6.
 //
 #include "GPTSovits/GPTSovits.h"
+#include <torch/script.h>
+#include <torch/torch.h>
 #include <fstream>
 
 namespace GPTSovits {
 
-std::unique_ptr<GPTSovitsConfig> GPTSovitsConfig::Make(std::string_view cn_bert_path,
-                                                       std::string_view tokenizer_path,
-                                                       std::string_view ssl_path) {
-  return std::make_unique<GPTSovitsConfig>(cn_bert_path, tokenizer_path, ssl_path);
+std::unique_ptr<GPTSovitsConfig> GPTSovitsConfig::Make(std::string_view defaultLang,std::string_view ssl_path) {
+  return std::make_unique<GPTSovitsConfig>(ssl_path,defaultLang);
 }
 
 
@@ -18,11 +18,12 @@ std::unique_ptr<GPTSovits> GPTSovitsConfig::Build(std::shared_ptr<TorchDevice> d
   if (!ssl) {
     THROW_ERRORN("加载ssl模型失败!\nFrom:{}", m_SslPath);
   }
-  return GPTSovits::Make(
-    CNBertModel::Make(*device, std::move(m_CnBertPath), std::move(m_TokenizerPath)),
+  auto r = GPTSovits::Make(
+    m_defaultLang,
     std::move(ssl),
     device
   );
+  return r;
 }
 
 }

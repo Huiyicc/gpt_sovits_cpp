@@ -15,21 +15,14 @@ namespace GPTSovits {
 class GPTSovits;
 
 class GPTSovitsConfig {
-  std::string m_CnBertPath;
-  std::string m_TokenizerPath;
   std::string m_SslPath;
+  std::string m_defaultLang;
 
 public:
-  explicit GPTSovitsConfig(std::string_view cn_bert_path,
-                           std::string_view tokenizer_path,
-                           std::string_view ssl_path)
-    : m_CnBertPath(cn_bert_path),
-      m_TokenizerPath(tokenizer_path),
-      m_SslPath(ssl_path) {};
+  explicit GPTSovitsConfig(std::string_view ssl_path,std::string_view defaultLang)
+    : m_SslPath(ssl_path) ,m_defaultLang(defaultLang) {};
 
-  static std::unique_ptr<GPTSovitsConfig> Make(std::string_view cn_bert_path,
-                                               std::string_view tokenizer_path,
-                                               std::string_view ssl_path);
+  static std::unique_ptr<GPTSovitsConfig> Make(std::string_view defaultLang,std::string_view ssl_path);
 
   std::unique_ptr<GPTSovits> Build(std::shared_ptr<TorchDevice> device);
 

@@ -76,6 +76,13 @@ bool safe_isspace(char32_t ch) {
   return ch == U' ' || ch == U'\t' || ch == U'\n' || ch == U'\r' || ch == U'\f' || ch == U'\v';
 }
 
+bool ispunct(char32_t ch) {
+  return (ch >= 0x21 && ch <= 0x2F) || // !"#$%&'()*+,-./
+         (ch >= 0x3A && ch <= 0x40) || // :;<=>?@
+         (ch >= 0x5B && ch <= 0x60) || // [\]^_`
+         (ch >= 0x7B && ch <= 0x7E);   // {|}~
+};
+
 // Function to trim spaces from both ends of a u32string
 std::u32string U32trim(const std::u32string &str) {
   size_t first = 0;
@@ -99,10 +106,22 @@ bool FindEnd(const std::string &source, const std::vector<char> &checks) {
   if (source.empty()) return false;
   return std::find(checks.begin(), checks.end(), source.back()) != checks.end();
 }
+bool FindEnd(const std::string &source, const std::vector<std::string> &checks){
+  for (const auto &check: checks) {
+    if (source.ends_with(check)) return true;
+  }
+  return false;
+}
 
 bool FindEnd(const std::u32string &source, const std::vector<char32_t> &checks) {
   if (source.empty()) return false;
   return std::find(checks.begin(), checks.end(), source.back()) != checks.end();
+}
+bool FindEnd(const std::u32string &source, const std::vector<std::u32string> &checks){
+  for (const auto &check: checks) {
+    if (source.ends_with(check)) return true;
+  }
+  return false;
 }
 
 std::vector<std::pair<int, int>> UTF8CharacterBoundaryIndices(const std::string &input) {
