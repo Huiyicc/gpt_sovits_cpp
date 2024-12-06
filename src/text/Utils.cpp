@@ -106,20 +106,25 @@ bool FindEnd(const std::string &source, const std::vector<char> &checks) {
   if (source.empty()) return false;
   return std::find(checks.begin(), checks.end(), source.back()) != checks.end();
 }
-bool FindEnd(const std::string &source, const std::vector<std::string> &checks){
-  for (const auto &check: checks) {
-    if (source.ends_with(check)) return true;
+bool FindEnd(const std::string &source, const std::vector<std::string> &checks) {
+  for (const auto &check : checks) {
+    if (source.size() >= check.size() &&
+        source.compare(source.size() - check.size(), check.size(), check) == 0) {
+      return true;
+    }
   }
   return false;
 }
-
 bool FindEnd(const std::u32string &source, const std::vector<char32_t> &checks) {
   if (source.empty()) return false;
   return std::find(checks.begin(), checks.end(), source.back()) != checks.end();
 }
-bool FindEnd(const std::u32string &source, const std::vector<std::u32string> &checks){
-  for (const auto &check: checks) {
-    if (source.ends_with(check)) return true;
+bool FindEnd(const std::u32string &source, const std::vector<std::u32string> &checks) {
+  for (const auto &check : checks) {
+    if (source.size() >= check.size() &&
+        std::equal(check.rbegin(), check.rend(), source.rbegin())) {
+      return true;
+    }
   }
   return false;
 }

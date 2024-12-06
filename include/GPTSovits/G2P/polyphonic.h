@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace GPTSovits {
-const std::unordered_map<std::string_view, std::vector<std::string_view>> &get_polyphonic_map();
+const std::unordered_map<std::string, std::vector<std::string>> &get_polyphonic_map();
 };
 
 #endif //GPT_SOVITS_CPP_POLYPHONIC_H

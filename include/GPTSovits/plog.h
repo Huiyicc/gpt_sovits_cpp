@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <chrono>
-#include <format>
+#include <fmt/format.h>
 
 #ifdef _WIN32
 #define LOCALTIME(time_str)                                                          \
@@ -31,9 +31,9 @@
     LOCALTIME(time_str);                                                                                          \
     std::string_view __TMP__fPath__ = __FILE__;                                                                   \
     __TMP__fPath__ = __TMP__fPath__.substr(strlen(CPPMODULE_PROJECT_ROOT_PATH)+1, __TMP__fPath__.size() - strlen(CPPMODULE_PROJECT_ROOT_PATH)-1); \
-    auto __TMP__lstr__ = std::format("<info> <{}> [{}:{}] ", time_str, __TMP__fPath__, __LINE__);                  \
-    auto __TMP__ustr__ = std::format(fstr, ##__VA_ARGS__);                                                        \
-    std::cout << std::format("{}{}", __TMP__lstr__, __TMP__ustr__) << std::endl;                                  \
+    auto __TMP__lstr__ = fmt::format("<info> <{}> [{}:{}] ", time_str, __TMP__fPath__, __LINE__);                  \
+    auto __TMP__ustr__ = fmt::format(fstr, ##__VA_ARGS__);                                                        \
+    std::cout << fmt::format("{}{}", __TMP__lstr__, __TMP__ustr__) << std::endl;                                  \
   } while (0)
 
 #define PrintDebug(fstr, ...)                                                                                     \
@@ -42,9 +42,9 @@
     LOCALTIME(time_str);                                                                                          \
     std::string_view TMP_fPath = __FILE__;                                                                   \
     TMP_fPath = TMP_fPath.substr(strlen(CPPMODULE_PROJECT_ROOT_PATH)+1, TMP_fPath.size() - strlen(CPPMODULE_PROJECT_ROOT_PATH)-1); \
-    auto TMP_lstr = std::format("<debug> <{}> [{}:{}] ", time_str, TMP_fPath, __LINE__);                  \
-    auto TMP_ustr = std::format(fstr, ##__VA_ARGS__);                                                        \
-    std::cout << std::format("{}{}", TMP_lstr, TMP_ustr) << std::endl;                                  \
+    auto TMP_lstr = fmt::format("<debug> <{}> [{}:{}] ", time_str, TMP_fPath, __LINE__);                  \
+    auto TMP_ustr = fmt::format(fstr, ##__VA_ARGS__);                                                        \
+    std::cout << fmt::format("{}{}", TMP_lstr, TMP_ustr) << std::endl;                                  \
   } while (0)
 
 #define PrintError(fstr, ...)                                                                                              \
@@ -53,9 +53,9 @@
     LOCALTIME(time_str);                                                                                          \
     std::string_view __TMP__fPath__ = __FILE__;                                                                   \
     __TMP__fPath__ = __TMP__fPath__.substr(strlen(CPPMODULE_PROJECT_ROOT_PATH)+1, __TMP__fPath__.size() - strlen(CPPMODULE_PROJECT_ROOT_PATH)-1); \
-    auto __TMP__lstr__ = std::format("<error> <{}> [{}:{}] ", time_str, __TMP__fPath__, __LINE__);                  \
-    auto __TMP__ustr__ = std::format(fstr, ##__VA_ARGS__);                                                        \
-    std::cerr << std::format("{}{}", __TMP__lstr__, __TMP__ustr__) << std::endl;                                  \
+    auto __TMP__lstr__ = fmt::format("<error> <{}> [{}:{}] ", time_str, __TMP__fPath__, __LINE__);                  \
+    auto __TMP__ustr__ = fmt::format(fstr, ##__VA_ARGS__);                                                        \
+    std::cerr << fmt::format("{}{}", __TMP__lstr__, __TMP__ustr__) << std::endl;                                  \
   } while (0)
 
 

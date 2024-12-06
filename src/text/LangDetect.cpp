@@ -45,7 +45,7 @@ bool has_symbol(const std::u32string &input) {
                                      U'(', U')', U'-', U'+', U'*', U'/', U'%', U'&', U'|', U'^', U'~', U'<', U'>', U'=',
                                      U'!', U'@', U'#', U'$', U'%', U'^', U'&', U'*', U'(', U')', U'[', U']', U'{', U'}',
                                      U':'};
-  auto res = std::ranges::any_of(chars, [&input](char32_t c) {
+  auto res = std::any_of(chars.begin(), chars.end(), [&input](char32_t c) {
     return input.find(c) != std::u32string::npos;
   });
   if (res) return res;
@@ -223,38 +223,46 @@ std::map<std::string_view, LangConfig> g_langConfigs = {
   {
     "en",
     {
-      .lang = "en",
-      .delimiter= " ",
-      .u32delimiter= U" ",
-      .has_func=has_en,
+      "en",
+      " ",
+      U" ",
+      has_en,
     }
   },
   {
     "zh",
     {
-      .lang = "zh",
-      .has_func=has_cn,
+      "zh",
+      "",
+      U"",
+      has_cn,
     }
   },
   {
     "jp",
     {
-      .lang = "jp",
-      .has_func=has_jp,
+      "jp",
+      "",
+      U"",
+      has_jp,
     }
   },
   {
     "kr",
     {
-      .lang = "kr",
-      .has_func=has_kr,
+       "kr",
+      "",
+      U"",
+      has_kr,
     }
   },
   {
     "symbol",
     {
-      .lang = "symbol",
-      .has_func=has_symbol,
+      "symbol",
+      "",
+      U"",
+      has_symbol,
     }
   }
 };
@@ -372,13 +380,13 @@ LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input
     auto handelStr = U32StringToString(u32handelStr);
     if (strp.is_special) {
       if (sentences.empty()) {
-        sentences.emplace_back(handelStr, u32handelStr, defaultLang);
+        sentences.emplace_back(LanguageSentence{handelStr, u32handelStr, defaultLang});
       } else {
         if (sentences.back().language == defaultLang) {
           sentences.back().sentence += handelStr;
           sentences.back().u32sentence += u32handelStr;
         } else {
-          sentences.emplace_back(handelStr, u32handelStr, defaultLang);
+          sentences.emplace_back(LanguageSentence{handelStr, u32handelStr, defaultLang});
         }
       }
       continue;
@@ -399,7 +407,7 @@ LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input
         // 空格
         // 保留空格
         if (sentences.empty()) {
-          sentences.emplace_back(word, uwordRaw, defaultLang);
+          sentences.emplace_back(LanguageSentence{word, uwordRaw, defaultLang});
         } else {
           sentences.back().sentence += word;
           sentences.back().u32sentence += uwordRaw;
@@ -413,7 +421,7 @@ LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input
         PrintDebug("WARNING: 语言检测失败.\nFrom: {} | {}", defaultLang, handStr);
         // 警告归警告,还是要添加的
         if (sentences.empty()) {
-          sentences.emplace_back(handStr, uwordRaw, defaultLang);
+          sentences.emplace_back(LanguageSentence{handStr, uwordRaw, defaultLang});
         } else {
           sentences.back().sentence += handStr;
           sentences.back().u32sentence += uwordRaw;
@@ -428,11 +436,11 @@ LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input
       if (sentences.empty()) {
         if (lang == "symbol") {
           // 第一个设置为默认语言
-          sentences.emplace_back(word, uwordRaw, defaultLang);
+          sentences.emplace_back(LanguageSentence{word, uwordRaw, defaultLang});
           continue;
         }
         // 补上
-        sentences.emplace_back(word, uwordRaw, lang);
+        sentences.emplace_back(LanguageSentence{word, uwordRaw, lang});
         continue;
       }
       if (sentences.back().language == lang) {
@@ -448,7 +456,7 @@ LangDetect::DetectSplit(const std::string &defaultLang, const std::string &input
           sentences.back().u32sentence += uwordRaw;
           continue;
         }
-        sentences.emplace_back(word, uwordRaw, lang);
+        sentences.emplace_back(LanguageSentence{word, uwordRaw, lang});
       }
     }
   }

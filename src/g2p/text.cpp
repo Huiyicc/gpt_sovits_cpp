@@ -4,12 +4,10 @@
 #include <GPTSovits/GPTSovits.h>
 #include <torch/torch.h>
 #include <tuple>
-#include <unordered_map>
-#include <srell.hpp>
-#include <boost/algorithm/string.hpp>
 #include <GPTSovits/Text/LangDetect.h>
 #include <GPTSovits/Bert/register.h>
 #include <GPTSovits/G2P/g2p.h>
+#include <fmt/format.h>
 #include "CLD2/compact_lang_det.h"
 
 namespace GPTSovits::G2P {
@@ -18,7 +16,7 @@ namespace GPTSovits::G2P {
 std::string format_vector(const std::vector<Text::LangDetect::LanguageSentence> &vec) {
   std::string result = "[";
   for (size_t i = 0; i < vec.size(); ++i) {
-    result += std::format("[{}]{}", vec[i].language, vec[i].sentence);
+    result += fmt::format("[{}]{}", vec[i].language, vec[i].sentence);
     if (i < vec.size() - 1) {
       result += ", ";
     }
@@ -33,7 +31,7 @@ std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string
     lang = gpt.DefaultLang();
   }
   auto detects = Text::LangDetect::getInstance()->DetectSplit(lang, text);
-  PrintDebug("detect str: {}",format_vector(detects));
+  PrintDebug("detect str: {}", format_vector(detects));
   std::vector<at::Tensor> PhoneSeqs;
   std::vector<at::Tensor> BertSeqs;
   for (auto &detectText: detects) {
@@ -47,10 +45,10 @@ std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string
     PhoneSeqs.emplace_back(std::move(*encodeResult.PhoneSeq));
     BertSeqs.emplace_back(std::move(*encodeResult.BertSeq));
   }
-  return std::make_shared<Bert::BertRes>(
+  return std::make_shared<Bert::BertRes>(Bert::BertRes{
     std::make_shared<torch::Tensor>(torch::cat({PhoneSeqs}, 1).to(*gpt.Device())),
     std::make_shared<at::Tensor>(torch::cat({BertSeqs}, 0).to(*gpt.Device()))
-  );
+  });
 }
 
 

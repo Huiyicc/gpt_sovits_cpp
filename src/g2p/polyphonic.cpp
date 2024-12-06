@@ -6,14 +6,14 @@
 
 namespace GPTSovits {
 
-std::string polyphonic_data;
-std::unordered_map<std::string_view, std::vector<std::string_view>> pp_dict;
+std::unordered_map<std::string, std::vector<std::string>> pp_dict;
 
-const std::unordered_map<std::string_view, std::vector<std::string_view>> &
+const std::unordered_map<std::string, std::vector<std::string>> &
 get_polyphonic_map() {
   if (!pp_dict.empty()) {
     return pp_dict;
   }
+  std::string polyphonic_data;
   if (polyphonic_data.empty()) {
     auto path = std::filesystem::current_path() / "res" / "polyphonic.data";
     #ifdef _HOST_WINDOWS_
@@ -34,15 +34,15 @@ get_polyphonic_map() {
       polyphonic_data.append(buffer, file.gcount());
     }
   }
-  std::string_view data_view(polyphonic_data);
+  std::string data_view(polyphonic_data);
   // Split data_view into lines using '\n'
   using boost::algorithm::split_iterator;
   using boost::algorithm::first_finder;
-  auto it = split_iterator<std::string_view::const_iterator>(
+  auto it = boost::split_iterator<std::string::const_iterator>(
     data_view.begin(), data_view.end(), first_finder("\n", boost::algorithm::is_equal()));
 
-  while (it != split_iterator<std::string_view::const_iterator>()) {
-    std::string_view line(it->begin(), it->end());
+  while (it != boost::split_iterator<std::string::const_iterator>()) {
+    std::string line(it->begin(), it->end());
     ++it;
 
     // Split each line using '|'
@@ -51,15 +51,15 @@ get_polyphonic_map() {
       continue; // Skip lines without '|'
     }
 
-    std::string_view key = line.substr(0, pipe_pos);
-    std::string_view values = line.substr(pipe_pos + 1);
+    std::string key = line.substr(0, pipe_pos);
+    std::string values = line.substr(pipe_pos + 1);
 
     // Split values using ',' and store them in a vector
-    std::vector<std::string_view> value_list;
-    auto val_it = split_iterator<std::string_view::const_iterator>(
+    std::vector<std::string> value_list;
+    auto val_it = boost::split_iterator<std::string::const_iterator>(
       values.begin(), values.end(), first_finder(",", boost::algorithm::is_equal()));
 
-    while (val_it != split_iterator<std::string_view::const_iterator>()) {
+    while (val_it != split_iterator<std::string::const_iterator>()) {
       value_list.emplace_back(val_it->begin(), val_it->end());
       ++val_it;
     }

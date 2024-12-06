@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
-#include <format>
+#include <fmt/format.h>
 
 namespace GPTSovits {
 
@@ -61,10 +61,10 @@ private:
 };
 
 // 辅助宏，用于生成包含文件名和行号的异常
-#define THROW_ERROR(message,...) throw GPTSovits::Exception(std::format(message,##__VA_ARGS__), 0, __FILE__, __LINE__)
-#define THROW_ERROR_CODE(message, errorCode,...) throw GPTSovits::Exception(std::format(message,##__VA_ARGS__), errorCode, __FILE__, __LINE__)
-#define THROW_ERRORN(message,...) throw Exception(std::format(message,##__VA_ARGS__), 0, __FILE__, __LINE__)
-#define THROW_ERROR_CODEN(message, errorCode,...) throw Exception(std::format(message,##__VA_ARGS__), errorCode, __FILE__, __LINE__)
+#define THROW_ERROR(message,...) throw GPTSovits::Exception(fmt::format(message,##__VA_ARGS__), 0, __FILE__, __LINE__)
+#define THROW_ERROR_CODE(message, errorCode,...) throw GPTSovits::Exception(fmt::format(message,##__VA_ARGS__), errorCode, __FILE__, __LINE__)
+#define THROW_ERRORN(message,...) throw Exception(fmt::format(message,##__VA_ARGS__), 0, __FILE__, __LINE__)
+#define THROW_ERROR_CODEN(message, errorCode,...) throw Exception(fmt::format(message,##__VA_ARGS__), errorCode, __FILE__, __LINE__)
 
 
 #endif//_GPTSOVITS_EXCEPTION_H_

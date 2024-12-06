@@ -5,7 +5,6 @@
 #include "GPTSovits/AudioTools.h"
 #include "sndfile.h"
 #include <stdexcept>
-#include <format>
 #include <samplerate.h>
 
 namespace GPTSovits {
