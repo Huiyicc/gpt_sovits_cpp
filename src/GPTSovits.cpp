@@ -53,6 +53,7 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
       if (!tmp_model) {
         THROW_ERRORN("加载模型文件失败!\nFrom:{}", modelPath);
       }
+      tmp_model->to(*m_devices);
       tmp_model->eval();
       m_SpeakerModelCacheMap[modelPath] = std::move(tmp_model);
     }
@@ -97,10 +98,13 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   }
 };
 
+GPTSovits& GPTSovits::ManualSeed(uint64_t seed) {
+  torch::manual_seed(seed);
+  return *this;
+}
 
 std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, const std::string &targetText) {
   PrintDebug("start infer");
-  torch::manual_seed(2576068740);
   SpeakerInfo *speaker = nullptr;
   {
     auto iter = m_SpeakerCacheMap.find(speakerName);

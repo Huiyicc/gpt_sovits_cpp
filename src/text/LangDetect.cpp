@@ -270,17 +270,22 @@ LangDetect::LangDetect() {
   if (!file.is_open()) {
     THROW_ERROR("打开Tokenizer失败!\nFrom: {}", tp.string());
   }
-  file.seekg(0, std::ios::end);
-  std::streamsize size = file.tellg();
-  file.seekg(0, std::ios::beg);
-  std::vector<char> buffer(size);
-  std::unique_ptr<std::string> data;
-  if (file.read(buffer.data(), size)) {
-    data = std::make_unique<std::string>(buffer.data(), size);
-  } else {
-    THROW_ERROR("读取Tokenizer流失败!\nFrom: {}", tp.string());
-  }
-  m_tokenizer = tokenizers::Tokenizer::FromBlobJSON(*data);
+  std::ostringstream oss;
+  oss << file.rdbuf();
+  m_tokenizer = tokenizers::Tokenizer::FromBlobJSON(oss.str());
+//
+//  file.seekg(0, std::ios::end);
+//  std::streamsize size = file.tellg();
+//  file.seekg(0, std::ios::beg);
+//  std::vector<char> buffer(size);
+//  std::unique_ptr<std::string> data;
+//  if (file.read(buffer.data(), size)) {
+//    data = std::make_unique<std::string>(buffer.data(), size);
+//  } else {
+//    THROW_ERROR("读取Tokenizer流失败!\nFrom: {}", tp.string());
+//  }
+//  m_tokenizer = tokenizers::Tokenizer::FromBlobJSON(*data);
+
 };
 
 std::pair<bool, std::string> LangDetect::Detect(const std::string &input) {

@@ -65,6 +65,7 @@ public:
                                    const std::string &refText);
 
   std::unique_ptr<AudioTools> Infer(const std::string&speakerName,const std::string&targetText);
+  GPTSovits& ManualSeed(uint64_t seed);
 
   std::unique_ptr<c10::IValue> Resample(AudioTools &audio, int target_sr);
 };

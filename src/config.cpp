@@ -15,6 +15,7 @@ std::unique_ptr<GPTSovitsConfig> GPTSovitsConfig::Make(std::string_view defaultL
 
 std::unique_ptr<GPTSovits> GPTSovitsConfig::Build(std::shared_ptr<TorchDevice> device) {
   auto ssl = std::make_unique<torch::jit::Module>(torch::jit::load(m_SslPath, *device));
+  ssl->to(*device);
   if (!ssl) {
     THROW_ERRORN("加载ssl模型失败!\nFrom:{}", m_SslPath);
   }

@@ -10,6 +10,7 @@
 #include <memory>
 #include <GPTSovits/G2P/g2p.h>
 #include <GPTSovits/config.h>
+#include <optional>
 
 namespace GPTSovits::Bert {
 
@@ -28,7 +29,7 @@ extern std::map<std::string, std::shared_ptr<IBert>> g_bert_map;
 void RegisterChinese(std::shared_ptr<TorchDevice> device, const std::string &modelPath, const std::string &tokenizerPath);
 void RegisterEnglish(std::shared_ptr<TorchDevice> device);
 
-std::shared_ptr<IBert> MakeFromLang(const std::string&lang);
+std::optional<std::shared_ptr<IBert>> MakeFromLang(const std::string &lang);
 
 }
 

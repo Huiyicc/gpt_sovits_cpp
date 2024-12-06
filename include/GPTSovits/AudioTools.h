@@ -47,9 +47,18 @@ public:
   FromByte(const std::vector<float> &samples, int samplerate, int channels = 1,
            int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16, int sections = 1, int seekable = 1);
 
+  static std::unique_ptr<AudioTools>
+  FromEmpty(int samplerate, int channels = 1,
+            int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16);
+
+
+  AudioTools &AppendEmpty(uint32_t duration_ms);
+
   size_t SaveToFile(const std::string &path, int format = SF_FORMAT_WAV | SF_FORMAT_PCM_16);
 
   std::unique_ptr<AudioTools> ReSample(int targetSamplerate);
+
+  AudioTools &Append(AudioTools &other);
 
 };
 

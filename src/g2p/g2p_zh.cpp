@@ -4,7 +4,7 @@
 #include <GPTSovits/G2P/g2p.h>
 #include <GPTSovits/G2P/g2p_zh.h>
 #include "cppjieba/Jieba.hpp"
-#include "GPTSovits/tone_sandhi.h"
+#include "GPTSovits/Text/tone_sandhi.h"
 #include "GPTSovits/Text/Coding.h"
 #include "GPTSovits/Text/Utils.h"
 #include <boost/algorithm/string.hpp>
@@ -13,7 +13,7 @@
 #include <cpp-pinyin/Pinyin.h>
 #include <cpp-pinyin/G2pglobal.h>
 #include <numeric>
-#include "GPTSovits/polyphonic.h"
+#include "GPTSovits/G2P/polyphonic.h"
 #include "GPTSovits/plog.h"
 
 namespace GPTSovits::G2P {
