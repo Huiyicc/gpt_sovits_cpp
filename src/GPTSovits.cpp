@@ -3,14 +3,21 @@
 //
 #include "GPTSovits/GPTSovits.h"
 #include "GPTSovits/Text/Coding.h"
-#include <torch/torch.h>
+//#include <torch/torch.h>
 #include <torch/script.h>
 #include <GPTSovits/Text/TextNormalizer/zh.h>
 #include <GPTSovits/G2P/g2p.h>
+#include <filesystem>
 
 #include <utility>
 
 namespace GPTSovits {
+
+std::filesystem::path g_globalResourcesPath = std::filesystem::current_path();
+
+void SetGlobalResourcesPath(const std::string &path) {
+  g_globalResourcesPath  = path;
+}
 
 GPTSovits::GPTSovits() {}
 
@@ -127,6 +134,13 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
       *speaker->RefBert->BertSeq,
       *bertRes->BertSeq,
     };
+//    {
+//      std::vector<torch::Tensor> data;
+//      for (auto&i:inputs) {
+//        data.push_back(i.toTensor());
+//      }
+//      torch::save(data, "data.pt");
+//    }
     auto start = std::chrono::high_resolution_clock::now();
     auto result_v = speaker->GPTSovitsModel->forward(inputs);
 
@@ -145,6 +159,7 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
 }
 
 std::unique_ptr<torch::jit::IValue> GPTSovits::Resample(AudioTools &audio, int target_sr) {
+  torch::NoGradGuard no_grad;
   auto audoData = audio.ReadSamples();
   auto refAudio = torch::from_blob(audoData.data(), {(int64_t) audoData.size()}, torch::kFloat).to(
     *m_devices).unsqueeze(0);

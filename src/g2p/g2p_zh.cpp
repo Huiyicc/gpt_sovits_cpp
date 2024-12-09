@@ -16,6 +16,10 @@
 #include "GPTSovits/G2P/polyphonic.h"
 #include "GPTSovits/plog.h"
 
+namespace GPTSovits {
+extern std::filesystem::path g_globalResourcesPath;
+}
+
 namespace GPTSovits::G2P {
 
 std::vector<std::string> correct_pronunciation(const std::string &word, const std::vector<Pinyin::PinyinRes> &input) {
@@ -101,15 +105,16 @@ _g2p_zh(const std::vector<std::u32string> &segments) {
   std::vector<std::string> phones_list;
   static auto jieba = []() {
     PrintInfo("Init CPPJieba.");
-    return std::make_shared<cppjieba::Jieba>("res/jieba_dict/jieba.dict.utf8",
-                                             "res/jieba_dict/hmm_model.utf8",
-                                             "res/jieba_dict/user.dict.utf8",
-                                             "res/jieba_dict/idf.utf8",
-                                             "res/jieba_dict/stop_words.utf8");
+    return std::make_shared<cppjieba::Jieba>((g_globalResourcesPath / "jieba_dict" / "jieba.dict.utf8").string(),
+                                             (g_globalResourcesPath / "jieba_dict" / "hmm_model.utf8").string(),
+                                             (g_globalResourcesPath / "jieba_dict" / "user.dict.utf8").string(),
+                                             (g_globalResourcesPath / "jieba_dict" / "idf.utf8").string(),
+                                             (g_globalResourcesPath / "jieba_dict" / "stop_words.utf8").string());
   }();
   static auto tone_modifier = ToneSandhi(jieba);
   static auto g2p_man = []() {
     PrintInfo("Init cpp-pinyin.");
+    Pinyin::setDictionaryPath(g_globalResourcesPath / "dict");
     return std::make_unique<Pinyin::Pinyin>();
   }();
 //  const auto g2p_man = ;

@@ -14,6 +14,10 @@
 #include <nlohmann/json.hpp>
 #include <set>
 
+namespace GPTSovits {
+extern std::filesystem::path g_globalResourcesPath;
+}
+
 namespace GPTSovits::G2P {
 
 std::unordered_map<std::string, std::vector<std::string>> g_en_pos_cache;
@@ -27,7 +31,7 @@ std::unordered_map<std::string, HomographFeature> g_en_homograph2features;
 std::unordered_map<std::string, std::vector<std::vector<std::string>>> g_en_namedict;
 
 void init_en_cmu() {
-  auto fpath = std::filesystem::current_path() / "res" / "g2p" / "en" / "engdict_cache_pickle.json";
+  auto fpath = g_globalResourcesPath / "g2p" / "en" / "engdict_cache_pickle.json";
   #ifdef _HOST_WINDOWS_
   std::ifstream file(fpath.wstring());
   #else
@@ -43,7 +47,7 @@ void init_en_cmu() {
 }
 
 void init_en_namedict() {
-  auto fpath = std::filesystem::current_path() / "res" / "g2p" / "en" / "namedict_en.json";
+  auto fpath = g_globalResourcesPath / "g2p" / "en" / "namedict_en.json";
   #ifdef _HOST_WINDOWS_
   std::ifstream file(fpath.wstring());
   #else
@@ -59,7 +63,7 @@ void init_en_namedict() {
 }
 
 void init_en_homograph2features() {
-  auto fpath = std::filesystem::current_path() / "res" / "g2p" / "en" / "homograph2features_en.json";
+  auto fpath = g_globalResourcesPath / "g2p" / "en" / "homograph2features_en.json";
   #ifdef _HOST_WINDOWS_
   std::ifstream file(fpath.wstring());
   #else
@@ -79,7 +83,7 @@ void init_en_homograph2features() {
 }
 
 void init_en_pos_cache() {
-  auto fpath = std::filesystem::current_path() / "res" / "g2p" / "en" / "en_pos_tagger.txt";
+  auto fpath = g_globalResourcesPath / "g2p" / "en" / "en_pos_tagger.txt";
   #ifdef _HOST_WINDOWS_
   std::ifstream file(fpath.wstring());
   #else

@@ -48,7 +48,7 @@ int main() {
       sentence.Append(text);
     }
     sentence.Flush();
-    auto outPath = std::filesystem::current_path() / std::format("cpp_out.wav");
+    auto outPath = std::filesystem::current_path() / fmt::format("cpp_out.wav");
     outaudio->SaveToFile(outPath.string());
 
   } catch (const GPTSovits::Exception &e) {

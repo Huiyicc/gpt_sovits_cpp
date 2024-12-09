@@ -5,7 +5,7 @@
 #include <filesystem>
 
 namespace GPTSovits {
-
+extern std::filesystem::path g_globalResourcesPath;
 std::unordered_map<std::string, std::vector<std::string>> pp_dict;
 
 const std::unordered_map<std::string, std::vector<std::string>> &
@@ -15,7 +15,7 @@ get_polyphonic_map() {
   }
   std::string polyphonic_data;
   if (polyphonic_data.empty()) {
-    auto path = std::filesystem::current_path() / "res" / "polyphonic.data";
+    auto path = g_globalResourcesPath / "polyphonic.data";
     #ifdef _HOST_WINDOWS_
     std::ifstream file(path.wstring());
     #else

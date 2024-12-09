@@ -19,7 +19,9 @@
 #include <xtensor/xadapt.hpp>
 #include <xtensor/xmath.hpp>
 #include <xtensor/xindex_view.hpp>
-
+namespace GPTSovits {
+extern std::filesystem::path g_globalResourcesPath;
+}
 namespace GPTSovits::G2P::g2p_en {
 
 extern std::map<std::string, int> g_en_g2idx;
@@ -51,7 +53,7 @@ void init_np_array() {
     [](std::filesystem::path path, auto &target) {
       target = std::make_shared<xt::xarray<float>>(xt::load_npy<float>(path.string()));
     };
-  auto path = std::filesystem::current_path() / "res" / "g2p" / "en";
+  auto path = g_globalResourcesPath / "g2p" / "en";
   loadnp(path / "enc_emb_en.bin", g_np_data.enc_emb);
   loadnp(path / "dec_b_hh_en.bin", g_np_data.dec_b_hh);
   loadnp(path / "dec_b_ih_en.bin", g_np_data.dec_b_ih);

@@ -7,6 +7,7 @@
 
 #include "./AudioTools.h"
 #include <unordered_map>
+#include <filesystem>
 #include "./tool.h"
 #include <GPTSovits/G2P/g2p.h>
 
@@ -23,6 +24,8 @@ struct IValue;
 
 
 namespace GPTSovits {
+
+void SetGlobalResourcesPath(const std::string &path);
 
 struct BertRes;
 

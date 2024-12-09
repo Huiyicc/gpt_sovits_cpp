@@ -2,7 +2,6 @@
 // Created by 19254 on 24-11-10.
 //
 #include <iostream>
-#include <format>
 #include "GPTSovits/GPTSovits.h"
 
 template <typename T>

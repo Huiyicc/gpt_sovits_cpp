@@ -2,7 +2,7 @@
 // Created by 19254 on 24-12-1.
 //
 #include <iostream>
-#include <format>
+#include <fmt/format.h>
 #include <map>
 #include <filesystem>
 #include "GPTSovits/GPTSovits.h"
@@ -11,7 +11,7 @@ template<typename T>
 std::string format_vector(const std::vector<T> &vec) {
   std::string result = "[";
   for (size_t i = 0; i < vec.size(); ++i) {
-    result += std::format("{}", vec[i]);
+    result += fmt::format("{}", vec[i]);
     if (i < vec.size() - 1) {
       result += ", ";
     }

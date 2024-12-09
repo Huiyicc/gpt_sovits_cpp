@@ -6,7 +6,7 @@
 #include "GPTSovits/Bert/CNBertModel.h"
 #include "GPTSovits/Utils/exception.h"
 #include "GPTSovits/gpt_sovits.h"
-#include "torch/torch.h"
+//#include "torch/torch.h"
 #include "torch/script.h"
 
 namespace GPTSovits {

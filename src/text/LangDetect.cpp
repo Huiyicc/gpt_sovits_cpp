@@ -15,8 +15,11 @@
 #include <filesystem>
 #include <srell.hpp>
 
-namespace GPTSovits::Text {
+namespace GPTSovits {
+extern std::filesystem::path g_globalResourcesPath;
+}
 
+namespace GPTSovits::Text {
 LangDetect *LangDetect::m_instance = nullptr;
 
 // 符号范围
@@ -268,7 +271,7 @@ std::map<std::string_view, LangConfig> g_langConfigs = {
 };
 
 LangDetect::LangDetect() {
-  std::filesystem::path tp = std::filesystem::current_path() / "res" / "tokenizer_many_lang.json";
+  std::filesystem::path tp = g_globalResourcesPath / "tokenizer_many_lang.json";
   #ifdef _HOST_WINDOWS_
   std::ifstream file(tp.wstring());
   #else

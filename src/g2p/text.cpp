@@ -2,7 +2,8 @@
 // Created by 19254 on 24-11-10.
 //
 #include <GPTSovits/GPTSovits.h>
-#include <torch/torch.h>
+//#include <torch/torch.h>
+#include <torch/script.h>
 #include <tuple>
 #include <GPTSovits/Text/LangDetect.h>
 #include <GPTSovits/Bert/register.h>

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <string>
+#include <list>
 #include <GPTSovits/Utils/Stack.h>
 #include <functional>
 #include <optional>

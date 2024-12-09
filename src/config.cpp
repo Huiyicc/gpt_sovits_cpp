@@ -3,7 +3,7 @@
 //
 #include "GPTSovits/GPTSovits.h"
 #include <torch/script.h>
-#include <torch/torch.h>
+//#include <torch/torch.h>
 #include <fstream>
 
 namespace GPTSovits {
