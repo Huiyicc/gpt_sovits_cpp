@@ -8,7 +8,7 @@ template <typename T>
 std::string format_vector(const std::vector<T>& vec) {
   std::string result = "[";
   for (size_t i = 0; i < vec.size(); ++i) {
-    result += std::format("{}", vec[i]);
+    result += fmt::format("{}", vec[i]);
     if (i < vec.size() - 1) {
       result += ", ";
     }

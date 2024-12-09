@@ -39,7 +39,7 @@ private:
 
 std::shared_ptr<IG2P> MakeFromLang(const std::string&lang);
 
-std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text);
+std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text,const std::string& lang="");
 
 }
 

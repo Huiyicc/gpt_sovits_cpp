@@ -24,7 +24,7 @@ int main() {
     gpt_sovits->CreateSpeaker("firefly",
                               currentPath + "/../model/gpt_sovits_model.pt",
                               currentPath + "/../model/ref.wav",
-                              "虽然我也没太搞清楚状况,但他说，似乎只有直率、纯真、有童心的小孩子才能看见它.");
+                              "虽然我也没太搞清楚状况,但他说，似乎只有直率、纯真、有童心的小孩子才能看见它." ,"zh");
 
     std::vector<std::string> texts = {
       "今天是2021年11月23日,天气晴,气温32°C.天下之大内有乾坤。",
@@ -34,6 +34,7 @@ int main() {
     gpt_sovits->ManualSeed(1733476914);
     GPTSovits::Text::Sentence sentence;
     std::shared_ptr<GPTSovits::AudioTools> outaudio;
+    auto start = std::chrono::high_resolution_clock::now();
     sentence.AppendCallBack([&](const std::string &text) -> bool {
       auto resAudio = gpt_sovits->Infer("firefly", text);
       if (!outaudio) {
@@ -48,8 +49,14 @@ int main() {
       sentence.Append(text);
     }
     sentence.Flush();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+
     auto outPath = std::filesystem::current_path() / fmt::format("cpp_out.wav");
     outaudio->SaveToFile(outPath.string());
+
+    std::cout << "音频写入: " << outPath << std::endl;
+    std::cout << "推理耗时: " << duration.count() << " ms" << std::endl;
 
   } catch (const GPTSovits::Exception &e) {
     PrintError("[{}:{}] {}", e.getFile(), e.getLine(), e.what());

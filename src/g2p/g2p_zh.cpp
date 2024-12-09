@@ -1,20 +1,20 @@
 //
 // Created by 19254 on 24-12-1.
 //
-#include <GPTSovits/G2P/g2p.h>
-#include <GPTSovits/G2P/g2p_zh.h>
-#include "cppjieba/Jieba.hpp"
-#include "GPTSovits/Text/tone_sandhi.h"
+#include "GPTSovits/G2P/polyphonic.h"
 #include "GPTSovits/Text/Coding.h"
 #include "GPTSovits/Text/Utils.h"
-#include <boost/algorithm/string.hpp>
+#include "GPTSovits/Text/tone_sandhi.h"
+#include "GPTSovits/plog.h"
+#include "cppjieba/Jieba.hpp"
+#include <GPTSovits/G2P/g2p.h>
+#include <GPTSovits/G2P/g2p_zh.h>
 #include <GPTSovits/Text/TextNormalizer/zh.h>
 #include <GPTSovits/Text/TextNormalizerMap.h>
-#include <cpp-pinyin/Pinyin.h>
+#include <boost/algorithm/string.hpp>
 #include <cpp-pinyin/G2pglobal.h>
+#include <cpp-pinyin/Pinyin.h>
 #include <numeric>
-#include "GPTSovits/G2P/polyphonic.h"
-#include "GPTSovits/plog.h"
 
 namespace GPTSovits {
 extern std::filesystem::path g_globalResourcesPath;
@@ -40,16 +40,14 @@ std::vector<std::string> correct_pronunciation(const std::string &word, const st
 }
 
 std::unordered_set<std::u32string> must_erhua = {
-  U"小院儿", U"胡同儿", U"范儿", U"老汉儿", U"撒欢儿", U"寻老礼儿", U"妥妥儿", U"媳妇儿"
-};
+  U"小院儿", U"胡同儿", U"范儿", U"老汉儿", U"撒欢儿", U"寻老礼儿", U"妥妥儿", U"媳妇儿"};
 
 std::unordered_set<std::u32string> not_erhua = {
   U"虐儿", U"为儿", U"护儿", U"瞒儿", U"救儿", U"替儿", U"有儿", U"一儿", U"我儿", U"俺儿", U"妻儿",
   U"拐儿", U"聋儿", U"乞儿", U"患儿", U"幼儿", U"孤儿", U"婴儿", U"婴幼儿", U"连体儿", U"脑瘫儿",
   U"流浪儿", U"体弱儿", U"混血儿", U"蜜雪儿", U"舫儿", U"祖儿", U"美儿", U"应采儿", U"可儿", U"侄儿",
   U"孙儿", U"侄孙儿", U"女儿", U"男儿", U"红孩儿", U"花儿", U"虫儿", U"马儿", U"鸟儿", U"猪儿", U"猫儿",
-  U"狗儿", U"少儿"
-};
+  U"狗儿", U"少儿"};
 
 
 std::pair<std::vector<std::string>, std::vector<std::string>>
@@ -112,12 +110,14 @@ _g2p_zh(const std::vector<std::u32string> &segments) {
                                              (g_globalResourcesPath / "jieba_dict" / "stop_words.utf8").string());
   }();
   static auto tone_modifier = ToneSandhi(jieba);
-  static auto g2p_man = []() {
+  static std::shared_ptr<Pinyin::Pinyin> g2p_man;
+  if (!g2p_man) {
     PrintInfo("Init cpp-pinyin.");
     Pinyin::setDictionaryPath(g_globalResourcesPath / "dict");
-    return std::make_unique<Pinyin::Pinyin>();
-  }();
-//  const auto g2p_man = ;
+    g2p_man = std::make_shared<Pinyin::Pinyin>();
+  }
+
+  //  const auto g2p_man = ;
   for (auto &segU32: segments) {
     std::vector<std::vector<std::string>> initialss;
     std::vector<std::vector<std::string>> finalss;
@@ -139,7 +139,7 @@ _g2p_zh(const std::vector<std::u32string> &segments) {
 
       std::vector<Pinyin::PinyinRes> lpy(pinyins.begin() + pre_word_length,
                                          pinyins.begin() +
-                                         now_word_length);
+                                           now_word_length);
       std::vector<std::string> sub_initials;
       std::vector<std::string> sub_finals;
       // 多音字消歧
@@ -208,9 +208,9 @@ _g2p_zh(const std::vector<std::u32string> &segments) {
           // 单音节
           static std::unordered_map<std::string_view, std::string> v_rep_map = {
             {"ing", "ying"},
-            {"i",   "yi"},
-            {"in",  "yin"},
-            {"u",   "wu"},
+            {"i", "yi"},
+            {"in", "yin"},
+            {"u", "wu"},
           };
           auto iter = v_rep_map.find(v_without_tone);
           if (iter != v_rep_map.end()) {
@@ -258,8 +258,8 @@ g2p_zh(const std::string &text) {
     std::u32string sentence = it->str();
     if (!sentence.empty()) {
       // 去掉首尾空白
-      sentence.erase(0, sentence.find_first_not_of(U' ')); // 去掉开头空格
-      sentence.erase(sentence.find_last_not_of(U' ') + 1); // 去掉结尾空格
+      sentence.erase(0, sentence.find_first_not_of(U' '));// 去掉开头空格
+      sentence.erase(sentence.find_last_not_of(U' ') + 1);// 去掉结尾空格
       sentences.push_back(sentence);
     }
   }

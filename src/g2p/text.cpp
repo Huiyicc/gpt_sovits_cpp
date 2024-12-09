@@ -3,13 +3,13 @@
 //
 #include <GPTSovits/GPTSovits.h>
 //#include <torch/torch.h>
-#include <torch/script.h>
-#include <tuple>
-#include <GPTSovits/Text/LangDetect.h>
+#include "CLD2/compact_lang_det.h"
 #include <GPTSovits/Bert/register.h>
 #include <GPTSovits/G2P/g2p.h>
+#include <GPTSovits/Text/LangDetect.h>
 #include <fmt/format.h>
-#include "CLD2/compact_lang_det.h"
+#include <torch/script.h>
+#include <tuple>
 
 namespace GPTSovits::G2P {
 
@@ -26,12 +26,12 @@ std::string format_vector(const std::vector<Text::LangDetect::LanguageSentence> 
   return result;
 }
 
-std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text) {
-  auto [isReliable, lang] = Text::LangDetect::getInstance()->Detect(text);
+std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text, const std::string &lang) {
+  auto [isReliable, de_lang] = Text::LangDetect::getInstance()->Detect(text);
   if (!isReliable) {
-    lang = gpt.DefaultLang();
+    de_lang = lang.empty() ? gpt.DefaultLang() : lang;
   }
-  auto detects = Text::LangDetect::getInstance()->DetectSplit(lang, text);
+  auto detects = Text::LangDetect::getInstance()->DetectSplit(de_lang, text);
   PrintDebug("detect str: {}", format_vector(detects));
   std::vector<at::Tensor> PhoneSeqs;
   std::vector<at::Tensor> BertSeqs;
@@ -48,9 +48,8 @@ std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string
   }
   return std::make_shared<Bert::BertRes>(Bert::BertRes{
     std::make_shared<torch::Tensor>(torch::cat({PhoneSeqs}, 1).to(*gpt.Device())),
-    std::make_shared<at::Tensor>(torch::cat({BertSeqs}, 0).to(*gpt.Device()))
-  });
+    std::make_shared<at::Tensor>(torch::cat({BertSeqs}, 0).to(*gpt.Device()))});
 }
 
 
-}
+}// namespace GPTSovits::G2P
