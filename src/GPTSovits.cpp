@@ -13,7 +13,7 @@
 
 namespace GPTSovits {
 
-std::filesystem::path g_globalResourcesPath = std::filesystem::current_path();
+std::filesystem::path g_globalResourcesPath = std::filesystem::current_path() / "res";
 
 void SetGlobalResourcesPath(const std::string &path) {
   g_globalResourcesPath  = path;

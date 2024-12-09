@@ -11,18 +11,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
   set(USE_CUSPARSELT OFF)
 endif ()
 
-# torch
-if (NOT DEFINED Torch_DIR)
-  message(FATAL_ERROR "Torch_DIR not exist")
-endif ()
-set(Torch_Base_Dir ${Torch_DIR})
-message("torch base dir: ${Torch_Base_Dir}")
-
-set(CMAKE_PREFIX_PATH "${Torch_Base_Dir}" ${CMAKE_PREFIX_PATH})
-find_package(Torch REQUIRED)
-include_directories(${TORCH_INCLUDE_DIRS})
-#link_directories("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/lib64")
-
 # 依赖库引入
 set(CMAKE_CXX_STANDARD 17)
 set(CPPMODULES $ENV{CPPMODULES})
@@ -45,6 +33,17 @@ set(CPPMODULE_XTENSOR 1)
 set(CPPMODULE_GPTSOVITSCPP 1)
 include(${CPPMODULES}/all.cmake)
 
+# torch
+if (NOT DEFINED Torch_DIR)
+  message(FATAL_ERROR "Torch_DIR not exist")
+endif ()
+set(Torch_Base_Dir ${Torch_DIR})
+message("torch base dir: ${Torch_Base_Dir}")
+
+set(CMAKE_PREFIX_PATH "${Torch_Base_Dir}" ${CMAKE_PREFIX_PATH})
+find_package(Torch REQUIRED)
+include_directories(${TORCH_INCLUDE_DIRS})
+#link_directories("C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/lib64")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 

@@ -13,17 +13,17 @@ int main() {
     PrintDebug("device: {}", GPTSovits::DeviceToString(*device));
 
     GPTSovits::Bert::RegisterChinese(device,
-                                     currentPath + R"(/../test/model_base/bert_model.pt)",
-                                     currentPath + R"(/../test/model_base/tokenizer.json)");
+                                     currentPath + R"(/../model_base/bert_model.pt)",
+                                     currentPath + R"(/../model_base/tokenizer.json)");
     GPTSovits::Bert::RegisterEnglish(device);
 
     auto gpt_config = GPTSovits::GPTSovitsConfig::Make("zh",
-                                                       currentPath + R"(/../test/model_base/ssl_model.pt)");
+                                                       currentPath + R"(/../model_base/ssl_model.pt)");
     auto gpt_sovits = gpt_config->Build(device);
 
     gpt_sovits->CreateSpeaker("firefly",
-                              currentPath + "/../test/model/gpt_sovits_model.pt",
-                              currentPath + "/../test/model/ref.wav",
+                              currentPath + "/../model/gpt_sovits_model.pt",
+                              currentPath + "/../model/ref.wav",
                               "虽然我也没太搞清楚状况,但他说，似乎只有直率、纯真、有童心的小孩子才能看见它.");
 
     std::vector<std::string> texts = {

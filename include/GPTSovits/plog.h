@@ -31,7 +31,7 @@
 #define ___PLOG_COUTE__(COUT_CODE) __android_log_print(ANDROID_LOG_ERROR, "GPTSovits C++", "%s", fmt::format(COUT_CODE).c_str())
 #else
 #define ___PLOG_COUTI__(COUT_CODE) std::cout << COUT_CODE << std::endl;
-#define ___PLOG_COUTD__(COUT_CODE) std::cerr << COUT_CODE << std::endl;
+#define ___PLOG_COUTD__(COUT_CODE) std::cout << COUT_CODE << std::endl;
 #define ___PLOG_COUTE__(COUT_CODE) std::cerr << COUT_CODE << std::endl;
 #endif
 
