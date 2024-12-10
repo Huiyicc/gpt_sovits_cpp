@@ -43,7 +43,7 @@ std::shared_ptr<TorchDevice> GPTSovits::Device() {
 };
 
 const GPTSovits::SpeakerInfo &
-GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, const std::string &audioPath, const std::string &refText, const std::string &lang) {
+GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, const std::string &audioPath, const std::string &refText, const std::string &lang, bool warmUP) {
   {
     auto iter = m_SpeakerCacheMap.find(name);
     if (iter != m_SpeakerCacheMap.end()) {
@@ -96,10 +96,15 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
     tempInfo->SSLContent = std::make_unique<torch::Tensor>(
       m_ssl->forward({*tempInfo->Audio16k}).toTensor().to(*m_devices));
 
-    tempInfo->RefBert = G2P::GetPhoneAndBert(*this, refText,lang);
+    tempInfo->RefBert = G2P::GetPhoneAndBert(*this, refText, lang);
     tempInfo->GPTSovitsModel = gpt_model;
     m_SpeakerCacheMap[name] = std::move(tempInfo);
     PrintInfo("Load Speaker {} Done.", name);
+    if (warmUP) {
+      PrintInfo("预热Sovits模型: {}", name);
+      Infer(name, refText);
+    }
+
     return *m_SpeakerCacheMap[name];
   }
 };
@@ -140,17 +145,18 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
     //      }
     //      torch::save(data, "data.pt");
     //    }
-    auto start = std::chrono::high_resolution_clock::now();
-    auto result_v = speaker->GPTSovitsModel->forward(inputs);
 
+
+//    auto start = std::chrono::high_resolution_clock::now();
+    auto result_v = speaker->GPTSovitsModel->forward(inputs);
     //    PrintDebug("Profiling mode is: {}" ,(profiling_mode ? "Enabled" : "Disabled"));
     //    torch::jit::setProfilingMode(false);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = end - start;
-    start = std::chrono::high_resolution_clock::now();
+//    auto end = std::chrono::high_resolution_clock::now();
+//    std::chrono::duration<double, std::milli> duration = end - start;
+//    start = std::chrono::high_resolution_clock::now();
     auto result = result_v.toTensor().to(torch::kCPU);
-    end = std::chrono::high_resolution_clock::now();
-    duration = end - start;
+//    end = std::chrono::high_resolution_clock::now();
+//    duration = end - start;
     std::vector<float> audio_data(result.data_ptr<float>(), result.data_ptr<float>() + result.numel());
     return AudioTools::FromByte(audio_data, 32000);
   }
@@ -165,4 +171,4 @@ std::unique_ptr<torch::jit::IValue> GPTSovits::Resample(AudioTools &audio, int t
                       torch::IValue(static_cast<int64_t>(target_sr))));
 }
 
-}
+}// namespace GPTSovits

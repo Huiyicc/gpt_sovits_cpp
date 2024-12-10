@@ -7,10 +7,25 @@
 - 下载[Libtorch](https://pytorch.org/)
     - 根据你的环境选择CUDA版本,Debug/Release
 
-
 # 资源消耗对比
 
-> 文档暂时施工中
+> 推理测试文本:  
+> 今天是2021年11月23日,天气晴,气温32°C."天下之大内有乾坤。  
+> 这个project的schedule有些问题，尤其是buffer不多。另外，cost也偏高。目前我们没法confirm手上的
+> resource能完全take得了。Anyway我们还是先pilot一下，再follow
+> up最终的output，看能不能run的比较smoothly，更重要的是evaluate所有的cost能不能完全被cover掉……  
+> The C++ support in Jupyter is powered by the xeus-cling C++ kernel.This function is used to find the length (in code
+> points) of a UTF-8 encoded string.
+
+> 以下列表如无特殊标准均为同一硬件/系统  
+> 系统: Windows11  
+> CPU: Intel 12700  
+> GPU: 2080ti-22G
+
+| 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 | 音频样本                                                                                                   |
+|----------------|----------|------------------|-------------------|--------------------------------------------------------------------------------------------------------|
+| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       | <audio controls><source src="doc/resource/out/cpp_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio>    |
+| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       | <audio controls><source src="doc/resource/out/python_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio> |
 
 # 编译/运行例子
 

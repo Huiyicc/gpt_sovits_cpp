@@ -26,8 +26,8 @@ public:
 
 extern std::map<std::string, std::shared_ptr<IBert>> g_bert_map;
 
-void RegisterChinese(std::shared_ptr<TorchDevice> device, const std::string &modelPath, const std::string &tokenizerPath);
-void RegisterEnglish(std::shared_ptr<TorchDevice> device);
+void RegisterChinese(GPTSovits&gsv, const std::string &modelPath, const std::string &tokenizerPath,bool warmUP=false);
+void RegisterEnglish(GPTSovits&gsv,bool warmUP=false);
 
 std::optional<std::shared_ptr<IBert>> MakeFromLang(const std::string &lang);
 

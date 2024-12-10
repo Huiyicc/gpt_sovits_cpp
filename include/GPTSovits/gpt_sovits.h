@@ -64,7 +64,7 @@ public:
   std::shared_ptr<TorchDevice> Device();
   const std::string &DefaultLang();
 
-  const SpeakerInfo &CreateSpeaker(const std::string &name, const std::string &modelPath, const std::string &audioPath, const std::string &refText, const std::string &lang);
+  const SpeakerInfo &CreateSpeaker(const std::string &name, const std::string &modelPath, const std::string &audioPath, const std::string &refText, const std::string &lang,bool warmUP=false);
 
   std::unique_ptr<AudioTools> Infer(const std::string &speakerName, const std::string &targetText);
   GPTSovits &ManualSeed(uint64_t seed);
