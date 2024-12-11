@@ -24,8 +24,8 @@
 
 | 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 | 音频样本                                                                                                   |
 |----------------|----------|------------------|-------------------|--------------------------------------------------------------------------------------------------------|
-| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       | <audio controls><source src="doc/resource/out/cpp_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio>    |
-| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       | <audio controls><source src="doc/resource/out/python_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio> |
+| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       | <audio controls><source src="https://github.com/Huiyicc/gpt_sovits_cpp/raw/refs/heads/dev/doc/resource/out/cpp_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio>    |
+| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       | <audio controls><source src="https://github.com/Huiyicc/gpt_sovits_cpp/raw/refs/heads/dev/doc/resource/out/python_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio> |
 
 # 编译/运行例子
 
