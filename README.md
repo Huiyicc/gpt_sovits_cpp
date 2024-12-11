@@ -7,7 +7,7 @@
 - 下载[Libtorch](https://pytorch.org/)
     - 根据你的环境选择CUDA版本,Debug/Release
 
-# 资源消耗对比
+# 推理成品样本与资源消耗对比
 
 > 推理测试文本:  
 > 今天是2021年11月23日,天气晴,气温32°C."天下之大内有乾坤。  
@@ -17,15 +17,36 @@
 > The C++ support in Jupyter is powered by the xeus-cling C++ kernel.This function is used to find the length (in code
 > points) of a UTF-8 encoded string.
 
+## 音频样本
+
+**gpt_sovits_cpp:**
+  
+https://github.com/user-attachments/assets/7fad6765-c30c-4b86-8d49-8187c8c0d66b
+
+**GPTSovits:**
+
+https://github.com/user-attachments/assets/ec50ba61-3a47-479e-8ad9-d49e55147252
+
+
 > 以下列表如无特殊标准均为同一硬件/系统  
 > 系统: Windows11  
 > CPU: Intel 12700  
 > GPU: 2080ti-22G
 
-| 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 | 音频样本                                                                                                   |
-|----------------|----------|------------------|-------------------|--------------------------------------------------------------------------------------------------------|
-| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       | <audio controls><source src="https://github.com/Huiyicc/gpt_sovits_cpp/raw/refs/heads/dev/doc/resource/out/cpp_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio>    |
-| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       | <audio controls><source src="https://github.com/Huiyicc/gpt_sovits_cpp/raw/refs/heads/dev/doc/resource/out/python_out.wav" type="audio/mpeg" >你的浏览器不支持音频元素。</audio> |
+| 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 |
+|----------------|----------|------------------|-------------------|
+| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       |
+| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       |
+
+# 开发计划
+
+- [x] 中文推理
+- [x] 英文推理
+- [ ] 日语推理
+- [ ] 韩语推理
+- [x] 多语种混合推理
+- [ ] 优化模型占用
+- [ ] 端测推理 (编译已通过,正在解决转换后torchscript部分类型不支持的问题)
 
 # 编译/运行例子
 
