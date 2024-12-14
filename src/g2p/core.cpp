@@ -6,6 +6,7 @@
 #include <GPTSovits/G2P/g2p.h>
 #include <GPTSovits/G2P/g2p_zh.h>
 #include <GPTSovits/G2P/g2p_en.h>
+#include <GPTSovits/G2P/g2p_ja.h>
 #include <GPTSovits/Utils/exception.h>
 #include <GPTSovits/Text/Utils.h>
 #include "GPTSovits/G2P/symbols.h"
@@ -44,6 +45,8 @@ std::shared_ptr<IG2P> MakeFromLang(const std::string &lang) {
     return std::make_shared<G2PZH>();
   } else if (lang == "en") {
     return std::make_shared<G2PEN>();
+  } else if (lang == "jp"||lang == "ja") {
+    return std::make_shared<G2PJA>();
   }
   THROW_ERRORN("Not support language {}", lang);
 }

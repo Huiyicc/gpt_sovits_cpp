@@ -242,9 +242,9 @@ std::map<std::string_view, LangConfig> g_langConfigs = {
     }
   },
   {
-    "jp",
+    "ja",
     {
-      "jp",
+      "ja",
       "",
       U"",
       has_jp,
@@ -303,8 +303,21 @@ std::pair<bool, std::string> LangDetect::Detect(const std::string &input) {
   bool is_reliable;
   auto resLang = CLD2::DetectLanguage(input.c_str(), input.size(), true, &is_reliable);
 
-  auto lang = CLD2::LanguageCode(resLang);
-
+  std::string lang = CLD2::LanguageCode(resLang);
+  // 修正语言
+  boost::to_lower(lang);
+  if (lang == "zh-hant") {
+    lang = "zh";
+  }
+  if (lang == "jp") {
+    lang = "ja";
+  }
+  if (lang == "ja") {
+    if (!has_jp(Text::StringToU32String(input))) {
+      // 有时候会把中文识别为日文
+      lang = "zh";
+    }
+  }
   return {is_reliable, lang};
 };
 
@@ -314,14 +327,6 @@ LangDetect::detect_word(const std::string &defaultLang, const std::string &word,
   if (isReliable) {
     // 可信
 //    PrintDebug("[{} ,{}]{}", isReliable, lang, word);
-    // 修正语言
-    boost::to_lower(lang);
-    if (lang == "zh-hant") {
-      lang = "zh";
-    }
-    if (lang == "ja") {
-      lang = "jp";
-    }
     return {isReliable, lang};
   }
   // 检测失败
@@ -338,7 +343,7 @@ LangDetect::detect_word(const std::string &defaultLang, const std::string &word,
   }
   // 是否有日文
   if (has_jp(uword)) {
-    lang = "jp";
+    lang = "ja";
     isReliable = true;
     return {isReliable, lang};
   }

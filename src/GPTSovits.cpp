@@ -77,20 +77,24 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   }
   tempInfo->ModifiedText = Text::U32StringToString(tempInfo->ModifiedTextU32);
 
-  //  auto new_audio_16k = audio->ReSample(16000);
-  //  auto new_audio_sample_16k = new_audio_16k->ReadSamples();
-  //  tempInfo->Audio16k = std::make_unique<torch::jit::IValue>(
-  //    torch::from_blob(new_audio_sample_16k.data(),
-  //                     {static_cast<long>(new_audio_sample_16k.size())},
-  //                     torch::kFloat32)
-  //      .unsqueeze(0).to(*m_devices));
-  //  tempInfo->Audio32k = std::make_unique<torch::jit::IValue>(
-  //    torch::from_blob(new_audio_sample_16k.data(),
-  //                     {static_cast<long>(new_audio_sample_16k.size())},
-  //                     torch::kFloat32)
-  //      .unsqueeze(0).to(*m_devices));
-  tempInfo->Audio16k = Resample(*audio, 16000);
-  tempInfo->Audio32k = Resample(*audio, 32000);
+    auto new_audio_16k = audio->ReSample(16000);
+    auto new_audio_sample_16k = new_audio_16k->ReadSamples();
+    tempInfo->Audio16k = std::make_unique<torch::jit::IValue>(
+      torch::from_blob(new_audio_sample_16k.data(),
+                       {static_cast<long>(new_audio_sample_16k.size())},
+                       torch::kFloat32)
+        .unsqueeze(0).to(*m_devices));
+
+    auto new_audio_32k = audio->ReSample(32000);
+    auto new_audio_sample_32k = new_audio_32k->ReadSamples();
+    tempInfo->Audio32k = std::make_unique<torch::jit::IValue>(
+      torch::from_blob(new_audio_sample_32k.data(),
+                       {static_cast<long>(new_audio_sample_32k.size())},
+                       torch::kFloat32)
+        .unsqueeze(0).to(*m_devices));
+
+//  tempInfo->Audio16k = Resample(*audio, 16000);
+//  tempInfo->Audio32k = Resample(*audio, 32000);
   {
     torch::NoGradGuard no_grad;
     tempInfo->SSLContent = std::make_unique<torch::Tensor>(
@@ -162,13 +166,13 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
   }
 }
 
-std::unique_ptr<torch::jit::IValue> GPTSovits::Resample(AudioTools &audio, int target_sr) {
-  torch::NoGradGuard no_grad;
-  auto audoData = audio.ReadSamples();
-  auto refAudio = torch::from_blob(audoData.data(), {(int64_t) audoData.size()}, torch::kFloat).to(*m_devices).unsqueeze(0);
-  return std::make_unique<torch::jit::IValue>(
-    m_ssl->run_method("resample", refAudio, torch::IValue(static_cast<int64_t>(audio.GetHeader().SampleRate)),
-                      torch::IValue(static_cast<int64_t>(target_sr))));
-}
+//std::unique_ptr<torch::jit::IValue> GPTSovits::Resample(AudioTools &audio, int target_sr) {
+//  torch::NoGradGuard no_grad;
+//  auto audoData = audio.ReadSamples();
+//  auto refAudio = torch::from_blob(audoData.data(), {(int64_t) audoData.size()}, torch::kFloat).to(*m_devices).unsqueeze(0);
+//  return std::make_unique<torch::jit::IValue>(
+//    m_ssl->run_method("resample", refAudio, torch::IValue(static_cast<int64_t>(audio.GetHeader().SampleRate)),
+//                      torch::IValue(static_cast<int64_t>(target_sr))));
+//}
 
 }// namespace GPTSovits

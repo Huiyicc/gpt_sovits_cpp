@@ -25,11 +25,16 @@ int main() {
   try {
     std::map<std::string, std::vector<std::string>> test_strs = {
       {
-        "en", {
-        "The C++ support in Jupyter is powered by the xeus-cling C++ kernel. Together with xeus-cling, xtensor enables a similar workflow to that of NumPy with the IPython Jupyter kernel.",
-        "This 2432324  25th encoded string.This function is used to find the length (in code points) of a UTF-8 encoded string. The reason it is called distance, rather than, say, length is mainly because developers are used that length is an O(1) function. Computing the length of an UTF-8 string is a linear operation, and it looked better to model it after std::distance algorithm.",
-      }
+        "ja", {
+          "Hello.こんにちは！今日もNiCe天気ですね！tokyotowerに行きましょう！",
+          }
       },
+//      {
+//        "en", {
+//        "The C++ support in Jupyter is powered by the xeus-cling C++ kernel. Together with xeus-cling, xtensor enables a similar workflow to that of NumPy with the IPython Jupyter kernel.",
+//        "This 2432324  25th encoded string.This function is used to find the length (in code points) of a UTF-8 encoded string. The reason it is called distance, rather than, say, length is mainly because developers are used that length is an O(1) function. Computing the length of an UTF-8 string is a linear operation, and it looked better to model it after std::distance algorithm.",
+//      }
+//      },
     };
 
     for (auto &[lang, texts]: test_strs) {

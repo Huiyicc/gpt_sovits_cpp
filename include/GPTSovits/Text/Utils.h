@@ -31,7 +31,7 @@ namespace GPTSovits::Text {
  * // result 现在包含 {"abc,", "def,", "ghi"}
  * @endcode
  */
-void SplitByRegex(std::vector<std::string> &result, const std::string &source, const std::string &regex);
+void SplitByRegex(std::vector<std::string> &result, const std::string &source, const std::string &regex=R"([,.;?!、，。？！;：…])");
 /**
  * @brief 根据正则表达式分割输入字符串
  *
@@ -54,6 +54,10 @@ void SplitByRegex(std::vector<std::string> &result, const std::string &source, c
  * @endcode
  */
 void SplitByRegex(std::vector<std::u32string> &result, const std::u32string &source, const std::u32string &regex);
+
+void SplitByRegex1(std::vector<std::u32string>&result,const std::u32string& text,const std::u32string&marks);
+void FindAll1(std::vector<std::u32string>&result,const std::u32string& text,const std::u32string&marks);
+void tolower(std::u32string& str);
 
 /**
  * @brief 检查给定的源字符串是否以指定的字符结尾。

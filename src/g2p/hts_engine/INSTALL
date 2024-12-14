@@ -1,0 +1,19 @@
+Installation Instructions
+*************************
+
+1. Cd to ./src directory.
+
+   % cd src
+
+2. Create "build" directory and cd to ./src/build.
+
+   % mkdir -p build && cd build
+
+3. Run "cmake" to create Makefile and "make" to compile.
+
+   % cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ..
+   % make -j
+
+4. Install library and binary.
+
+   % make install

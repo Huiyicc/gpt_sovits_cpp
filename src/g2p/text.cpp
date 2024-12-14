@@ -32,7 +32,7 @@ std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string
     de_lang = lang.empty() ? gpt.DefaultLang() : lang;
   }
   auto detects = Text::LangDetect::getInstance()->DetectSplit(de_lang, text);
-  PrintDebug("detect str: {}", format_vector(detects));
+  PrintDebug("[is reliable:{}]detect str:{} -> {}",isReliable,text, format_vector(detects));
   std::vector<at::Tensor> PhoneSeqs;
   std::vector<at::Tensor> BertSeqs;
   for (auto &detectText: detects) {

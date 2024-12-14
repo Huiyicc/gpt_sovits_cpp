@@ -8,7 +8,7 @@
 namespace GPTSovits::Text {
 
 void SplitByRegex(std::vector<std::string> &result, const std::string &source, const std::string &regex) {
-  srell::regex re(R"([,.;?!、，。？！;：…])");
+  srell::regex re(regex);
   srell::sregex_token_iterator it(source.begin(), source.end(), re, -1);
   srell::sregex_token_iterator end;
 
@@ -60,6 +60,90 @@ SplitByRegex(std::vector<std::u32string> &result, const std::u32string &input, c
   // Push the last accumulated part
   if (!currentPart.empty()) {
     result.push_back(currentPart);
+  }
+}
+
+void SplitByRegex1(std::vector<std::u32string>&result,const std::u32string& text,const std::u32string&marks) {
+  srell::u32regex marks_re(marks);
+
+  srell::u32sregex_token_iterator iter(text.begin(), text.end(), marks_re, -1);
+  srell::u32sregex_token_iterator end;
+
+  while (iter != end) {
+    result.push_back(*iter);
+    ++iter;
+  }
+
+}
+
+void FindAll1(std::vector<std::u32string>&result,const std::u32string& text,const std::u32string&marks) {
+  srell::u32regex marks_re(marks);
+  srell::u32sregex_iterator currentMatch(text.begin(), text.end(), marks_re);
+  srell::u32sregex_iterator lastMatch;
+
+  while (currentMatch != lastMatch) {
+    srell::u32smatch match = *currentMatch;
+    result.push_back(match.str());
+    currentMatch++;
+  }
+
+}
+
+void tolower(std::u32string& str) {
+  for (char32_t& c : str) {
+    // 处理基本拉丁字母（Basic Latin）A-Z
+    if (c >= U'\x41' && c <= U'\x5A') {
+      c += 32;
+      continue;
+    }
+
+    // 处理拉丁补充字母-1（Latin-1 Supplement）À-Þ
+    if (c >= U'\xC0' && c <= U'\xDE' && c != U'\xD7') {
+      c += 32;
+      continue;
+    }
+
+    // 处理拉丁扩展字母-A（Latin Extended-A）
+    if (c >= U'\x0100' && c <= U'\x0136' && (c % 2 == 0)) {
+      c += 1;
+      continue;
+    }
+    if (c >= U'\x0139' && c <= U'\x0147' && (c % 2 == 1)) {
+      c += 1;
+      continue;
+    }
+    if (c >= U'\x014A' && c <= U'\x0178' && (c % 2 == 0)) {
+      c += 1;
+      continue;
+    }
+    if (c >= U'\x0179' && c <= U'\x017E' && (c % 2 == 1)) {
+      c += 1;
+      continue;
+    }
+
+    // 处理拉丁扩展字母-B（Latin Extended-B）
+    // 常用范围
+    if (c >= U'\x0181' && c <= U'\x0186') {
+      switch (c) {
+        case U'\x0181': c = U'\x0253'; break;
+        case U'\x0182': c = U'\x0183'; break;
+        case U'\x0184': c = U'\x0185'; break;
+        case U'\x0186': c = U'\x0254'; break;
+      }
+      continue;
+    }
+
+    // 希腊字母（Greek and Coptic）
+    if (c >= U'\x0391' && c <= U'\x03A9') {
+      c += 32;
+      continue;
+    }
+
+    // 西里尔字母（Cyrillic）
+    if (c >= U'\x0410' && c <= U'\x042F') {
+      c += 32;
+      continue;
+    }
   }
 }
 

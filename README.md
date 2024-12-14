@@ -9,6 +9,16 @@
 
 # 推理成品样本与资源消耗对比
 
+> 以下列表如无特殊标注均为同一硬件/系统  
+> 系统: Windows11  
+> CPU: Intel 12700  
+> GPU: 2080ti 22G
+
+| 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 |
+|----------------|----------|------------------|-------------------|
+| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       |
+| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       |
+
 > 推理测试文本:  
 > 今天是2021年11月23日,天气晴,气温32°C."天下之大内有乾坤。  
 > 这个project的schedule有些问题，尤其是buffer不多。另外，cost也偏高。目前我们没法confirm手上的
@@ -27,25 +37,27 @@ https://github.com/user-attachments/assets/7fad6765-c30c-4b86-8d49-8187c8c0d66b
 
 https://github.com/user-attachments/assets/ec50ba61-3a47-479e-8ad9-d49e55147252
 
+# 三语混合推理
 
-> 以下列表如无特殊标准均为同一硬件/系统  
-> 系统: Windows11  
-> CPU: Intel 12700  
-> GPU: 2080ti-22G
+> 皆さん、我在インターネット上看到someone把几国language混在一起speak。我看到之后be like：それは我じゃないか！私もtry一tryです。  
+> 虽然是混乱している句子ですけど、中文日本語プラスEnglish、挑戦スタート！  
+> 我study日本語的时候，もし有汉字，我会很happy。  
+> Bueause中国人として、when I see汉字，すぐに那个汉字がわかります。  
+> But 我hate外来語、什么マクドナルド、スターバックス、グーグル、ディズニーランド、根本记不住カタカナhow to写、太難しい。  
+> 2021年6月25日,今天32°C。以上です，byebye！  
 
-| 项目             | 内存消耗(最高) | 显存消耗             | (无cache)输出时长/消耗时长 |
-|----------------|----------|------------------|-------------------|
-| gpt_sovits_cpp | 1444MB   | 2.7GB(1xSpeaker) | 46.8s/14.1s       |
-| GPTSovits      | 3321MB   | 1.8GB(1xSpeaker) | 40.1s/17.6s       |
+https://github.com/user-attachments/assets/0c1e4079-d048-451f-a17b-c0bfea552d0c
+
+> 已知问题: 混合有日语时会使英语带有日本口音(🌿)
 
 # 开发计划
 
 - [x] 中文推理
 - [x] 英文推理
-- [ ] 日语推理
+- [x] 日语推理
 - [ ] 韩语推理
 - [x] 多语种混合推理
-- [ ] 优化模型占用
+- [ ] 优化模型
 - [ ] 端测推理 (编译已通过,正在解决转换后torchscript部分类型不支持的问题)
 
 # 编译/运行例子
