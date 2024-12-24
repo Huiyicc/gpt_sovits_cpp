@@ -1,0 +1,42 @@
+[submodule "third_party/json"]
+	path = third_party/json
+	url = https://github.com/CppModules/json
+[submodule "third_party/cpp-pinyin"]
+	path = third_party/cpp-pinyin
+	url = https://github.com/CppModules/cpp-pinyin
+[submodule "third_party/boost-cmake"]
+	path = third_party/boost-cmake
+	url = https://github.com/CppModules/boost-cmake
+[submodule "third_party/tokenizers-cpp"]
+	path = third_party/tokenizers-cpp
+	url = https://github.com/CppModules/tokenizers-cpp
+[submodule "third_party/libsndfile"]
+	path = third_party/libsndfile
+	url = https://github.com/CppModules/libsndfile
+[submodule "third_party/SRELL"]
+	path = third_party/SRELL
+	url = https://github.com/CppModules/SRELL
+[submodule "third_party/utfcpp"]
+	path = third_party/utfcpp
+	url = https://github.com/CppModules/utfcpp
+[submodule "third_party/cppjieba"]
+	path = third_party/cppjieba
+	url = https://github.com/CppModules/cppjieba
+[submodule "third_party/libsamplerate"]
+	path = third_party/libsamplerate
+	url = https://github.com/CppModules/libsamplerate
+[submodule "third_party/cld2-cmake"]
+	path = third_party/cld2-cmake
+	url = https://github.com/CppModules/cld2-cmake
+[submodule "third_party/xtl"]
+	path = third_party/xtl
+	url = https://github.com/CppModules/xtl
+[submodule "third_party/xtensor-blas"]
+	path = third_party/xtensor-blas
+	url = https://github.com/CppModules/xtensor-blas
+[submodule "third_party/xtensor"]
+	path = third_party/xtensor
+	url = https://github.com/CppModules/xtensor
+[submodule "third_party/fmt"]
+	path = third_party/fmt
+	url = https://github.com/CppModules/fmt
