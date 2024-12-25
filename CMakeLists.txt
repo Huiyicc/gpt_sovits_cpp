@@ -11,6 +11,24 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
   set(USE_CUSPARSELT OFF)
 endif ()
 
+# 引入相关依赖
+include(cmake/base.cmake)
+include(cmake/JSON.cmake)
+include(cmake/fmt.cmake)
+include(cmake/cpp-pinyin.cmake)
+set(CPPMODULE_BOOSTCMAKE_ENABLE_ALL 1)
+include(cmake/boost-cmake.cmake)
+include(cmake/tokenizers-cpp.cmake)
+include(cmake/utfcpp.cmake)
+include(cmake/SRELL.cmake)
+include(cmake/libsndfile.cmake)
+include(cmake/cppjieba.cmake)
+include(cmake/libsamplerate.cmake)
+include(cmake/cld2-cmake.cmake)
+include(cmake/xtl.cmake)
+include(cmake/xtensor.cmake)
+include(cmake/xtensor-blas.cmake)
+
 
 message("Torch_DIR=${Torch_DIR}")
 # 检查torch定义
@@ -18,6 +36,11 @@ if (DEFINED Torch_DIR)
   set(Torch_Base_Dir ${Torch_DIR})
 else ()
   message(FATAL_ERROR "Please specify the torch directory with -DTorch_DIR=<path/to/torch>")
+endif ()
+
+if(MSVC AND NOT OFF_ADD_NVTX )
+add_library(CUDA::nvToolsExt INTERFACE IMPORTED)
+set_property(TARGET CUDA::nvToolsExt APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CUDAToolkit_INCLUDE_DIRS}")
 endif ()
 
 add_definitions(-DCHARSET_UTF_8 -DMECAB_CHARSET=utf-8 -DMECAB_UTF8_USE_ONLY)
@@ -85,7 +108,6 @@ else ()
   #include_directories(${Tarch_Base_Dir}/include)
 endif ()
 
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB_RECURSE GPT_SOVITS_CPP_SOURCE
     "src/*.cpp"
     "src/bert/*.cpp"
@@ -108,9 +130,10 @@ IF (OS_IS_LINUX)
 endif ()
 
 add_library(gpt_sovits_cpp_static STATIC ${GPT_SOVITS_CPP_SOURCE})
+target_include_directories(gpt_sovits_cpp_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 #target_compile_definitions(gpt_sovits_cpp_static PRIVATE _ISLIBRARY_)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(gpt_sovits_cpp_static PRIVATE
+target_include_directories(gpt_sovits_cpp_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(gpt_sovits_cpp_static PUBLIC
     ${TORCH_LIBRARIES}
     ${CPPMODULE_LINK_LIBRARIES_ALL}
     openjtalk
@@ -143,3 +166,9 @@ else ()
       ${CMAKE_BINARY_DIR}/res
   )
 endif ()
+
+# torch
+if (NOT DEFINED Torch_DIR)
+  message(FATAL_ERROR "Torch_DIR not exist")
+endif ()
+

@@ -4,6 +4,12 @@
 # adapted from https://gist.github.com/hkrn/889259/266e798f48a49d041d7f1e41a579d878134f1fca
 cmake_minimum_required(VERSION 2.6)
 
+if (MSVC)
+  add_compile_options(/utf-8)
+else ()
+  add_compile_options(-finput-charset=UTF-8 -fexec-charset=UTF-8)
+endif ()
+
 # set library version
 set(OPEN_JTALK_VERSION 1.11)
 set(PACKAGE "open_jtalk")

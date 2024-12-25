@@ -3,7 +3,6 @@
 - 安装CUDA
     - > 这个可以参考我的文章  
       [cmake配置cuda12.4+libtorch开发环境](https://www.hyiy.top/archives/53/)
-- 克隆[CppModels](https://github.com/Huiyicc/CppModels)并按照仓库README配置
 - 下载[Libtorch](https://pytorch.org/)
     - 根据你的环境选择CUDA版本,Debug/Release
 
@@ -68,7 +67,7 @@ https://github.com/user-attachments/assets/0c1e4079-d048-451f-a17b-c0bfea552d0c
 - 修改 `test/cli/gsv_cli.cpp` 的第27行为参考音频文本
 
 ```shell
-# 仓库已合并到 https://github.com/Huiyicc/CppModels 全家桶
+git clone --recursive https://github.com/Huiyicc/gpt_sovits_cpp
 cd gpt_sovits_cpp/test
 mkdir build
 cd build
