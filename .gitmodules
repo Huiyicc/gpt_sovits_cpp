@@ -40,3 +40,6 @@
 [submodule "third_party/fmt"]
 	path = third_party/fmt
 	url = https://github.com/CppModules/fmt
+[submodule "cmake"]
+	path = cmake
+	url = https://github.com/CppModules/cmake-scripts
