@@ -5,6 +5,7 @@
       [cmake配置cuda12.4+libtorch开发环境](https://www.hyiy.top/archives/53/)
 - 下载[Libtorch](https://pytorch.org/)
     - 根据你的环境选择CUDA版本,Debug/Release
+      - > 推荐版本: 2.5.0+
 
 # 推理成品样本与资源消耗对比
 

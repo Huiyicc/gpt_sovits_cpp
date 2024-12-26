@@ -24,7 +24,7 @@ public:
 
 BertCN::BertCN(std::shared_ptr<TorchDevice> device, const std::string &modelPath, const std::string &tokenizerPath)
     : m_device(device) {
-  m_zhBert = CNBertModel::Make(*device, std::move(modelPath), std::move(tokenizerPath));
+  m_zhBert = CNBertModel::Make(*device, modelPath, tokenizerPath);
 }
 
 BertRes BertCN::Encode(G2P::G2PRes &g2pData) {
