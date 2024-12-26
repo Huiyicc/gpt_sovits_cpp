@@ -40,7 +40,7 @@
 
 #ifndef NJD2JPCOMMON_C
 #define NJD2JPCOMMON_C
-
+#include <string.h>
 #ifdef __cplusplus
 #define NJD2JPCOMMON_C_START extern "C" {
 #define NJD2JPCOMMON_C_END   }

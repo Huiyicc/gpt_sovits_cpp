@@ -116,16 +116,17 @@ file(GLOB_RECURSE GPT_SOVITS_CPP_SOURCE
 )
 IF (OS_IS_LINUX)
   # 把这段注释掉编译就会出现奇奇怪怪的符号未定义问题
-  include_directories(${CPPMODULES}/cpp-pinyin/src/toneUtil)
-  include_directories(${CPPMODULES}/tokenizers-cpp/msgpack/include)
-  include_directories(${CPPMODULES}/tokenizers-cpp/sentencepiece/src)
+  include_directories(third_party/cpp-pinyin/src/toneUtil)
+  include_directories(third_party/tokenizers-cpp/msgpack/include)
+  include_directories(third_party/tokenizers-cpp/sentencepiece/src)
   file(GLOB_RECURSE GPT_SOVITS_CPP_ADDER_SOURCE
-      "${CPPMODULES}/cpp-pinyin/src/*.cpp"
-      "${CPPMODULES}/tokenizers-cpp/src/*.cc"
+      "third_party/cpp-pinyin/src/*.cpp"
+      "third_party/tokenizers-cpp/src/*.cc"
   )
   set(GPT_SOVITS_CPP_SOURCE
       ${GPT_SOVITS_CPP_ADDER_SOURCE}
       ${GPT_SOVITS_CPP_SOURCE}
+      third_party/fmt/src/format.cc
   )
 endif ()
 

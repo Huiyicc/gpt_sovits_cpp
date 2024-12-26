@@ -40,7 +40,7 @@
 
 #ifndef JPCOMMON_NODE_C
 #define JPCOMMON_NODE_C
-
+#include <string.h>
 #ifdef __cplusplus
 #define JPCOMMON_NODE_C_START extern "C" {
 #define JPCOMMON_NODE_C_END   }

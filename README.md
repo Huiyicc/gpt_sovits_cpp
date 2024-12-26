@@ -6,6 +6,15 @@
 - 下载[Libtorch](https://pytorch.org/)
     - 根据你的环境选择CUDA版本,Debug/Release
       - > 推荐版本: 2.5.0+
+- 安装rust
+- 安装依赖库
+     ```shell
+        # ubuntu
+        sudo apt install autoconf autogen automake build-essential libasound2-dev \
+          libflac-dev libogg-dev libtool libvorbis-dev libopus-dev libmp3lame-dev \
+          libmpg123-dev pkg-config 
+    ```
+
 
 # 推理成品样本与资源消耗对比
 
