@@ -142,25 +142,16 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
       *speaker->RefBert->BertSeq,
       *bertRes->BertSeq,
     };
-    //    {
-    //      std::vector<torch::Tensor> data;
-    //      for (auto&i:inputs) {
-    //        data.push_back(i.toTensor());
-    //      }
-    //      torch::save(data, "data.pt");
-    //    }
 
+    auto start = std::chrono::high_resolution_clock::now();
 
-//    auto start = std::chrono::high_resolution_clock::now();
     auto result_v = speaker->GPTSovitsModel->forward(inputs);
-    //    PrintDebug("Profiling mode is: {}" ,(profiling_mode ? "Enabled" : "Disabled"));
-    //    torch::jit::setProfilingMode(false);
-//    auto end = std::chrono::high_resolution_clock::now();
-//    std::chrono::duration<double, std::milli> duration = end - start;
-//    start = std::chrono::high_resolution_clock::now();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    PrintDebug("t1:{}",duration.count());
+
     auto result = result_v.toTensor().to(torch::kCPU);
-//    end = std::chrono::high_resolution_clock::now();
-//    duration = end - start;
     std::vector<float> audio_data(result.data_ptr<float>(), result.data_ptr<float>() + result.numel());
     return AudioTools::FromByte(audio_data, 32000);
   }

@@ -3,13 +3,14 @@
 //
 //#include <torch/torch.h>
 
+#include "GPTSovits/G2P/symbols.h"
 #include <GPTSovits/G2P/g2p.h>
-#include <GPTSovits/G2P/g2p_zh.h>
 #include <GPTSovits/G2P/g2p_en.h>
 #include <GPTSovits/G2P/g2p_ja.h>
-#include <GPTSovits/Utils/exception.h>
+#include <GPTSovits/G2P/g2p_zh.h>
+#include <GPTSovits/G2P/g2p_ko.h>
 #include <GPTSovits/Text/Utils.h>
-#include "GPTSovits/G2P/symbols.h"
+#include <GPTSovits/Utils/exception.h>
 
 namespace GPTSovits::G2P {
 
@@ -25,10 +26,10 @@ std::vector<int> cleaned_text_to_sequence(const std::vector<std::string> &phones
 }
 
 G2PRes IG2P::CleanText(const std::string &text) {
-//  auto input = text;
-//  if (!Text::FindEnd(input, {".", ",", "?", "!", ";", "。", "，", "？", "！", ";"})) {
-//    input += ".";
-//  }
+  //  auto input = text;
+  //  if (!Text::FindEnd(input, {".", ",", "?", "!", ";", "。", "，", "？", "！", ";"})) {
+  //    input += ".";
+  //  }
   auto res = _cleanText(text);
   for (auto &ph: res.phones) {
     // 检查 ph 是否在 symbols 中
@@ -45,8 +46,10 @@ std::shared_ptr<IG2P> MakeFromLang(const std::string &lang) {
     return std::make_shared<G2PZH>();
   } else if (lang == "en") {
     return std::make_shared<G2PEN>();
-  } else if (lang == "jp"||lang == "ja") {
+  } else if (lang == "jp" || lang == "ja") {
     return std::make_shared<G2PJA>();
+  } else if (lang == "ko" || lang == "kr") {
+    return std::make_shared<G2PKO>();
   }
   THROW_ERRORN("Not support language {}", lang);
 }

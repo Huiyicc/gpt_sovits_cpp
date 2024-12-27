@@ -41,7 +41,7 @@ std::shared_ptr<TorchDevice> GetDefaultDevice() {
 #endif
 }
 
-std::shared_ptr<TorchDevice> GetDevice(std::string_view device) {
+std::shared_ptr<TorchDevice> GetDevice(std::string device) {
 #ifdef _HOST_ANDROID_
   if (device == "vulkan" && at::is_vulkan_available()) {
     return std::make_shared<TorchDevice>(c10::DeviceType::Vulkan);
@@ -50,7 +50,7 @@ std::shared_ptr<TorchDevice> GetDevice(std::string_view device) {
   }
 #else
   if (torch::cuda::is_available()) {
-    return std::make_shared<TorchDevice>(device.data());
+    return std::make_shared<TorchDevice>(device);
   } else {
     return std::make_shared<TorchDevice>("cpu");
   }

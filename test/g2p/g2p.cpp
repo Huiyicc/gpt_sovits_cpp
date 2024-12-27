@@ -29,6 +29,11 @@ int main() {
           "Hello.こんにちは！今日もNiCe天気ですね！tokyotowerに行きましょう！",
           }
       },
+      // {
+      //   "ko", {
+      //     "오늘날씨가 abc 좋네요",
+      //     }
+      // },
 //      {
 //        "en", {
 //        "The C++ support in Jupyter is powered by the xeus-cling C++ kernel. Together with xeus-cling, xtensor enables a similar workflow to that of NumPy with the IPython Jupyter kernel.",

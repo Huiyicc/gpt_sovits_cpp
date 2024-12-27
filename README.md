@@ -64,7 +64,8 @@ https://github.com/user-attachments/assets/0c1e4079-d048-451f-a17b-c0bfea552d0c
 - [x] 中文推理
 - [x] 英文推理
 - [x] 日语推理
-- [ ] 韩语推理
+- [ ] ~~韩语推理~~
+  - > 由于韩语g2p项目许可证为LGPL与未知许,暂时搁置.
 - [x] 多语种混合推理
 - [ ] 优化模型
 - [ ] 端测推理 (编译已通过,正在解决转换后torchscript部分类型不支持的问题)

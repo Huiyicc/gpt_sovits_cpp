@@ -30,7 +30,7 @@ struct G2PRes {
 class IG2P {
 
 public:
-
+  virtual ~IG2P() = default;
   virtual G2PRes CleanText(const std::string &text) final;
 private:
   // CleanText重写这个逻辑
