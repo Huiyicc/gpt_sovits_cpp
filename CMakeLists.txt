@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
-project(gpt_sovits_cpp)
+
+set(GPTSOVITS_PROJECT_NAME gpt_sovits)
+project(${GPTSOVITS_PROJECT_NAME})
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
   if (MSVC)
@@ -55,7 +57,6 @@ set(HTS_ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/g2p/hts_engine/includ
 set(HTS_ENGINE_LIB ${CPPMODULE_BINARY_SUBDIR}/hts_engine)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/g2p/open_jtalk)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/g2p/open_jtalk)
-
 
 # 是否为android构建
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -113,6 +114,7 @@ file(GLOB_RECURSE GPT_SOVITS_CPP_SOURCE
     "src/bert/*.cpp"
     "src/g2p/*.cpp"
     "src/text/*.cpp"
+    "src/export/*.cpp"
 )
 IF (OS_IS_LINUX)
   # 把这段注释掉编译就会出现奇奇怪怪的符号未定义问题
@@ -130,37 +132,86 @@ IF (OS_IS_LINUX)
   )
 endif ()
 
-add_library(gpt_sovits_cpp_static STATIC ${GPT_SOVITS_CPP_SOURCE})
-target_include_directories(gpt_sovits_cpp_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-#target_compile_definitions(gpt_sovits_cpp_static PRIVATE _ISLIBRARY_)
-target_include_directories(gpt_sovits_cpp_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(gpt_sovits_cpp_static PUBLIC
-    ${TORCH_LIBRARIES}
-    ${CPPMODULE_LINK_LIBRARIES_ALL}
-    openjtalk
-    #        _CPPMODULE_FMT_LIB_
-    #        ${CPPMODULE_BINARY_SUBDIR}/cpp-pinyin/libcpp-pinyin.a
-)
+if (GPTSOVITS_BUILD_SHARED)
+  add_library(${GPTSOVITS_PROJECT_NAME} SHARED ${GPT_SOVITS_CPP_SOURCE})
+  target_compile_definitions(${GPTSOVITS_PROJECT_NAME} PRIVATE GPTSOVITS_API_EXPORTS)
+  set_target_properties(${GPTSOVITS_PROJECT_NAME} PROPERTIES
+      LINK_FLAGS "/DEF:\"${CMAKE_CURRENT_SOURCE_DIR}/src/export/gpt_sovits_cpp.def\""
+  )
+
+else()
+  add_library(${GPTSOVITS_PROJECT_NAME} STATIC ${GPT_SOVITS_CPP_SOURCE})
+endif()
+
+target_include_directories(${GPTSOVITS_PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+#target_compile_definitions(${GPTSOVITS_PROJECT_NAME} PRIVATE _ISLIBRARY_)
+target_include_directories(${GPTSOVITS_PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+if(GPTSOVITS_BUILD_SHARED)
+  target_link_libraries(${GPTSOVITS_PROJECT_NAME} PRIVATE
+      ${TORCH_LIBRARIES}
+      ${CPPMODULE_LINK_LIBRARIES_ALL}
+      openjtalk
+      #        _CPPMODULE_FMT_LIB_
+      #        ${CPPMODULE_BINARY_SUBDIR}/cpp-pinyin/libcpp-pinyin.a
+  )
+else ()
+  target_link_libraries(${GPTSOVITS_PROJECT_NAME} PUBLIC
+      ${TORCH_LIBRARIES}
+      ${CPPMODULE_LINK_LIBRARIES_ALL}
+      openjtalk
+      #        _CPPMODULE_FMT_LIB_
+      #        ${CPPMODULE_BINARY_SUBDIR}/cpp-pinyin/libcpp-pinyin.a
+  )
+endif ()
 
 if (MSVC)
   file(GLOB TORCH_DLLS "${TORCH_INSTALL_PREFIX}/lib/*.dll")
-  add_custom_command(TARGET gpt_sovits_cpp_static
+  add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME}
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
       ${TORCH_DLLS}
       "${CMAKE_BINARY_DIR}")
+  if(GPTSOVITS_BUILD_SHARED)
+    set(GPTSOVITS_BINAYNAME "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE_INIT}")
+    add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "${GPTSOVITS_BINAYNAME}/${GPTSOVITS_PROJECT_NAME}.dll"
+        "${CMAKE_BINARY_DIR}/${GPTSOVITS_PROJECT_NAME}.dll"
+        COMMENT "Copying ${GPTSOVITS_PROJECT_NAME} Binary to Target"
+    )
+    # 如果有.lib和.pdb的话
+    if (EXISTS "${GPTSOVITS_BINAYNAME}/${GPTSOVITS_PROJECT_NAME}.lib")
+      add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME}
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          "${GPTSOVITS_BINAYNAME}/${GPTSOVITS_PROJECT_NAME}.lib"
+          "${CMAKE_BINARY_DIR}/${GPTSOVITS_PROJECT_NAME}.lib"
+          COMMENT "Copying ${GPTSOVITS_PROJECT_NAME} Lib to Target"
+      )
+    endif ()
+    if (EXISTS "${GPTSOVITS_BINAYNAME}/${GPTSOVITS_PROJECT_NAME}.pdb")
+      add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME}
+          POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          "${GPTSOVITS_BINAYNAME}/${GPTSOVITS_PROJECT_NAME}.pdb"
+          "${CMAKE_BINARY_DIR}/${GPTSOVITS_PROJECT_NAME}.pdb"
+          COMMENT "Copying ${GPTSOVITS_PROJECT_NAME} pdb to Target"
+      )
+    endif ()
+  endif ()
 endif (MSVC)
 
 # copy res
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-  add_custom_command(TARGET gpt_sovits_cpp_static POST_BUILD
+  add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME} POST_BUILD
       COMMAND
       ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_CURRENT_SOURCE_DIR}/res
       ${CMAKE_SOURCE_DIR}/../assets/res
   )
 else ()
-  add_custom_command(TARGET gpt_sovits_cpp_static POST_BUILD
+  add_custom_command(TARGET ${GPTSOVITS_PROJECT_NAME} POST_BUILD
       COMMAND
       ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_CURRENT_SOURCE_DIR}/res
@@ -168,8 +219,4 @@ else ()
   )
 endif ()
 
-# torch
-if (NOT DEFINED Torch_DIR)
-  message(FATAL_ERROR "Torch_DIR not exist")
-endif ()
 

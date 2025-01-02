@@ -7,6 +7,7 @@
 #include <GPTSovits/Bert/register.h>
 #include <GPTSovits/G2P/g2p.h>
 #include <GPTSovits/Text/LangDetect.h>
+#include <boost/algorithm/string/trim.hpp>
 #include <fmt/format.h>
 #include <torch/script.h>
 #include <tuple>
@@ -27,11 +28,12 @@ std::string format_vector(const std::vector<Text::LangDetect::LanguageSentence> 
 }
 
 std::shared_ptr<Bert::BertRes> GetPhoneAndBert(GPTSovits &gpt, const std::string &text, const std::string &lang) {
-  auto [isReliable, de_lang] = Text::LangDetect::getInstance()->Detect(text);
+  auto htext = boost::trim_copy(text);
+  auto [isReliable, de_lang] = Text::LangDetect::getInstance()->Detect(htext);
   if (!isReliable) {
     de_lang = lang.empty() ? gpt.DefaultLang() : lang;
   }
-  auto detects = Text::LangDetect::getInstance()->DetectSplit(de_lang, text);
+  auto detects = Text::LangDetect::getInstance()->DetectSplit(de_lang, htext);
   // PrintDebug("[is reliable:{}]detect str:{} -> {}",isReliable,text, format_vector(detects));
   std::vector<at::Tensor> PhoneSeqs;
   std::vector<at::Tensor> BertSeqs;

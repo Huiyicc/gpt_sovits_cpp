@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <torch/script.h>
 
+#include <boost/algorithm/string/trim.hpp>
 #include <utility>
 
 namespace GPTSovits {
@@ -55,13 +56,18 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
     auto iter = m_SpeakerModelCacheMap.find(modelPath);
     if (iter == m_SpeakerModelCacheMap.end()) {
       PrintDebug("Load mode: {}", modelPath);
-      auto tmp_model = std::make_unique<torch::jit::Module>(torch::jit::load(modelPath, *m_devices));
-      if (!tmp_model) {
-        THROW_ERRORN("加载模型文件失败!\nFrom:{}", modelPath);
+      try{
+        auto tmp_model = std::make_unique<torch::jit::Module>(torch::jit::load(modelPath, *m_devices));
+        if (!tmp_model) {
+          THROW_ERRORN("加载模型文件失败!\nFrom:{}", modelPath);
+        }
+        tmp_model->to(*m_devices);
+        tmp_model->eval();
+        m_SpeakerModelCacheMap[modelPath] = std::move(tmp_model);
+      } catch (const std::exception& e){
+        PrintError("加载模型文件失败!\nErr:{}\nFrom:{}",e.what(), modelPath);
+        throw;
       }
-      tmp_model->to(*m_devices);
-      tmp_model->eval();
-      m_SpeakerModelCacheMap[modelPath] = std::move(tmp_model);
     }
     gpt_model = m_SpeakerModelCacheMap[modelPath].get();
   }
@@ -77,24 +83,26 @@ GPTSovits::CreateSpeaker(const std::string &name, const std::string &modelPath, 
   }
   tempInfo->ModifiedText = Text::U32StringToString(tempInfo->ModifiedTextU32);
 
-    auto new_audio_16k = audio->ReSample(16000);
-    auto new_audio_sample_16k = new_audio_16k->ReadSamples();
-    tempInfo->Audio16k = std::make_unique<torch::jit::IValue>(
-      torch::from_blob(new_audio_sample_16k.data(),
-                       {static_cast<long>(new_audio_sample_16k.size())},
-                       torch::kFloat32)
-        .unsqueeze(0).to(*m_devices));
+  auto new_audio_16k = audio->ReSample(16000);
+  auto new_audio_sample_16k = new_audio_16k->ReadSamples();
+  tempInfo->Audio16k = std::make_unique<torch::jit::IValue>(
+    torch::from_blob(new_audio_sample_16k.data(),
+                     {static_cast<long>(new_audio_sample_16k.size())},
+                     torch::kFloat32)
+      .unsqueeze(0)
+      .to(*m_devices));
 
-    auto new_audio_32k = audio->ReSample(32000);
-    auto new_audio_sample_32k = new_audio_32k->ReadSamples();
-    tempInfo->Audio32k = std::make_unique<torch::jit::IValue>(
-      torch::from_blob(new_audio_sample_32k.data(),
-                       {static_cast<long>(new_audio_sample_32k.size())},
-                       torch::kFloat32)
-        .unsqueeze(0).to(*m_devices));
+  auto new_audio_32k = audio->ReSample(32000);
+  auto new_audio_sample_32k = new_audio_32k->ReadSamples();
+  tempInfo->Audio32k = std::make_unique<torch::jit::IValue>(
+    torch::from_blob(new_audio_sample_32k.data(),
+                     {static_cast<long>(new_audio_sample_32k.size())},
+                     torch::kFloat32)
+      .unsqueeze(0)
+      .to(*m_devices));
 
-//  tempInfo->Audio16k = Resample(*audio, 16000);
-//  tempInfo->Audio32k = Resample(*audio, 32000);
+  //  tempInfo->Audio16k = Resample(*audio, 16000);
+  //  tempInfo->Audio32k = Resample(*audio, 32000);
   {
     torch::NoGradGuard no_grad;
     tempInfo->SSLContent = std::make_unique<torch::Tensor>(
@@ -119,7 +127,11 @@ GPTSovits &GPTSovits::ManualSeed(uint64_t seed) {
 }
 
 std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, const std::string &targetText) {
-  PrintDebug("start infer");
+  auto text = boost::trim_copy(targetText);
+  PrintDebug("start infer:{}", text);
+  if (text.empty()) {
+    return AudioTools::FromByte({0}, 32000);
+  }
   SpeakerInfo *speaker = nullptr;
   {
     auto iter = m_SpeakerCacheMap.find(speakerName);
@@ -130,7 +142,7 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
   };
   {
     torch::NoGradGuard no_grad;
-    auto bertRes = G2P::GetPhoneAndBert(*this, targetText);
+    auto bertRes = G2P::GetPhoneAndBert(*this, text);
     //    bool profiling_mode = torch::jit::getProfilingMode() = false;
 
     //    torch::autograd::profiler::RecordProfile guard("gemfield/gemfield.pt.trace.json");
@@ -143,13 +155,7 @@ std::unique_ptr<AudioTools> GPTSovits::Infer(const std::string &speakerName, con
       *bertRes->BertSeq,
     };
 
-    auto start = std::chrono::high_resolution_clock::now();
-
     auto result_v = speaker->GPTSovitsModel->forward(inputs);
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = end - start;
-    PrintDebug("t1:{}",duration.count());
 
     auto result = result_v.toTensor().to(torch::kCPU);
     std::vector<float> audio_data(result.data_ptr<float>(), result.data_ptr<float>() + result.numel());

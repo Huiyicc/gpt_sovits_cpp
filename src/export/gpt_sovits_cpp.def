@@ -1,0 +1,22 @@
+﻿EXPORTS
+    gsv_set_last_error
+    gsv_get_last_error
+
+    gsv_global_resources_path_set
+
+    gsv_device_create
+    gsv_device_get_name
+    gsv_device_free
+
+    gsv_cli_create
+    gsv_cli_free
+    gsv_cli_create_speaker
+    gsv_cli_manual_seed
+    gsv_cli_infer
+
+    gsv_bert_register_chinese
+    gsv_bert_register_english
+    gsv_bert_register_japanese
+
+    gsv_audio_free
+    gsv_audio_save_to_file
