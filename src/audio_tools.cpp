@@ -1,11 +1,11 @@
 //
 // Created by 19254 on 24-11-12.
 //
-#include "GPTSovits/Utils/exception.h"
 #include "GPTSovits/AudioTools.h"
+#include "GPTSovits/Utils/exception.h"
 #include "sndfile.h"
-#include <stdexcept>
 #include <samplerate.h>
+#include <stdexcept>
 
 namespace GPTSovits {
 
@@ -46,6 +46,18 @@ AudioTools::FromByte(const std::vector<float> &samples, int samplerate, int chan
   return ptr;
 }
 
+std::unique_ptr<AudioTools> AudioTools::FromEmpty(int samplerate, int channels, int format) {
+  auto ptr = std::make_unique<AudioTools>();
+  SF_INFO sfinfo = {0};
+  sfinfo.samplerate = samplerate;
+  sfinfo.channels = channels;
+  sfinfo.format = format;
+  ptr->m_sfinfo = sfinfo;
+  ptr->m_infile = nullptr;
+  ptr->m_i_know_empty = true;
+  return ptr;
+}
+
 AudioTools::~AudioTools() {
   if (m_infile) {
     sf_close(m_infile);
@@ -54,7 +66,7 @@ AudioTools::~AudioTools() {
 
 
 void AudioTools::check_init() {
-  if (!m_infile && m_samplesCache.empty()) {
+  if (!m_infile && (m_samplesCache.empty() && !m_i_know_empty)) {
     THROW_ERRORN("解析音频对象未初始化!");
   }
 };
@@ -120,7 +132,7 @@ AudioTools::ReSample(int targetSamplerate) {
   srcData.src_ratio = srcRatio;
   srcData.end_of_input = SF_TRUE;
 
-  if (auto error = src_simple(&srcData, SRC_SINC_MEDIUM_QUALITY, m_sfinfo.channels);error) {
+  if (auto error = src_simple(&srcData, SRC_SINC_MEDIUM_QUALITY, m_sfinfo.channels); error) {
     THROW_ERRORN("Error during resampling: {}", src_strerror(error));
   }
   auto newInfo = m_sfinfo;
@@ -131,7 +143,7 @@ AudioTools::ReSample(int targetSamplerate) {
   return resPtr;
 }
 
-AudioTools& AudioTools::Append(AudioTools &other) {
+AudioTools &AudioTools::Append(AudioTools &other) {
   check_init();
 
   // 读取两个音频的采样数据
@@ -194,57 +206,9 @@ AudioTools& AudioTools::Append(AudioTools &other) {
   m_sfinfo.frames += otherFrames;
 
   return *this;
-//  check_init();
-//  other.check_init();
-//
-//  // 获取当前音频和待合并音频的头信息
-//  auto currentHeader = GetHeader();
-//  auto otherHeader = other.GetHeader();
-//
-//  // 重采样
-//  std::unique_ptr<AudioTools> resampledOther;
-//  if (currentHeader.SampleRate != otherHeader.SampleRate) {
-//    resampledOther = other.ReSample(currentHeader.SampleRate);
-//  } else {
-//    resampledOther = std::make_unique<AudioTools>(other);
-//  }
-//
-//  // 声道匹配
-//  // 如果声道数不同，需要进行转换，这里假设目标是立体声
-//  if (currentHeader.Channels != resampledOther->GetHeader().Channels) {
-//    THROW_ERRORN("声道数不匹配且转换未实现");
-//  }
-//
-//  // 格式匹配
-//  // 如果格式不同，可以在这里进行格式转换，暂时假设格式一致
-//
-//  // 拼接音频数据
-//  auto currentSamples = ReadSamples();
-//  auto otherSamples = resampledOther->ReadSamples();
-//
-//  std::vector<float> concatenatedSamples;
-//  concatenatedSamples.reserve(currentSamples.size() + otherSamples.size());
-//  concatenatedSamples.insert(concatenatedSamples.end(), currentSamples.begin(), currentSamples.end());
-//  concatenatedSamples.insert(concatenatedSamples.end(), otherSamples.begin(), otherSamples.end());
-//
-//  // 创建新的音频对象
-//  SF_INFO newInfo = m_sfinfo;
-//  newInfo.frames = currentHeader.Frames + resampledOther->GetHeader().Frames;
-//  return FromByte(newInfo, concatenatedSamples);
 }
 
-std::unique_ptr<AudioTools> AudioTools::FromEmpty(int samplerate, int channels, int format) {
-  auto ptr = std::make_unique<AudioTools>();
-  SF_INFO sfinfo = {0};
-  sfinfo.samplerate = samplerate;
-  sfinfo.channels = channels;
-  sfinfo.format = format;
-  ptr->m_sfinfo = sfinfo;
-  ptr->m_infile = nullptr;
-  return ptr;
-}
-
-AudioTools& AudioTools::AppendEmpty(uint32_t duration_ms) {
+AudioTools &AudioTools::AppendEmpty(uint32_t duration_ms) {
   check_init();
 
   // 计算需要的空样本数

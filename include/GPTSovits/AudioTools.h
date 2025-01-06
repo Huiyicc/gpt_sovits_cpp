@@ -13,8 +13,9 @@
 namespace GPTSovits {
 
 class AudioTools {
-  SF_INFO m_sfinfo;
-  SNDFILE *m_infile;
+  SF_INFO m_sfinfo = {0};
+  SNDFILE *m_infile = nullptr;
+  bool m_i_know_empty = false;
 
   void check_init();
 

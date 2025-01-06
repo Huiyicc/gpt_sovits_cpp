@@ -18,5 +18,19 @@
     gsv_bert_register_english
     gsv_bert_register_japanese
 
+    gsv_sentence_create
+    gsv_sentence_free
+    gsv_sentence_set_append_callback
+    gsv_sentence_append
+    gsv_sentence_flush
+
     gsv_audio_free
     gsv_audio_save_to_file
+    gsv_audio_from_file
+    gsv_audio_from_byte
+    gsv_audio_from_empty
+    gsv_audio_get_header
+    gsv_audio_samples
+    gsv_audio_append_empty
+    gsv_audio_resample
+    gsv_audio_append

@@ -6,8 +6,8 @@
 #define EXPORT_DEFINE_H
 
 #include <memory>
-#include "GPTSovits/GPTSovits_c.h"
 #include "GPTSovits/GPTSovits.h"
+#include "GPTSovits/GPTSovits_c.h"
 
 struct device_info {
   std::shared_ptr<GPTSovits::TorchDevice> device;
@@ -20,6 +20,10 @@ struct gsv_cli {
 
 struct gsv_audio {
   std::unique_ptr<GPTSovits::AudioTools> audio;
+};
+
+struct gsv_sentence {
+  std::unique_ptr<GPTSovits::Text::Sentence> sentence;
 };
 
 #endif //EXPORT_DEFINE_H

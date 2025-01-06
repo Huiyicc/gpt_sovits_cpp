@@ -30,14 +30,14 @@ if(MSVC)
       COMMAND
       ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_CURRENT_BINARY_DIR}/res
-      ${CMAKE_CURRENT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE_INIT}/res
+      ${CMAKE_CURRENT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}/res
   )
   file(GLOB COPY_DLLS "${CMAKE_CURRENT_BINARY_DIR}/*.dll")
   add_custom_command(TARGET gpt_sovits_test_cli_dll POST_BUILD
       COMMAND
       ${CMAKE_COMMAND} -E copy_if_different
       ${COPY_DLLS}
-      ${CMAKE_CURRENT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE_INIT}
+      ${CMAKE_CURRENT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}
       COMMENT "MV Libs to MSVC Runtime"
   )
 endif ()
