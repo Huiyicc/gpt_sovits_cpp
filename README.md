@@ -68,7 +68,8 @@ https://github.com/user-attachments/assets/0c1e4079-d048-451f-a17b-c0bfea552d0c
   - > 由于韩语g2p项目许可证为LGPL与未知许,暂时搁置.
 - [x] 多语种混合推理
 - [ ] 优化模型
-- [ ] 端测推理 (编译已通过,正在解决转换后torchscript部分类型不支持的问题)
+- [ ] ~~端测推理 (编译已通过,正在解决转换后torchscript部分类型不支持的问题)~~
+  - > 已确认部分算子libtorch不支持
 
 # 编译/运行例子
 
@@ -120,6 +121,7 @@ python export_torch_script.py --gpt_model "<gpt权重>.ckpt" \
 # 其他
 
 - windows下只支持MSVC(libtorch)
+- 继承到UE需要使用(UBT?)自编译libtorch(或使用社区libtorch插件) [TODO This](https://github.com/Huiyicc/gpt_sovits_cpp/issues/6)
 
 # 感谢以下项目做的前置代码工作
 
