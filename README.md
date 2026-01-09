@@ -1,3 +1,6 @@
+> 此版本效率过低且已弃置,后续在 [GPT-SoVITS-cpp](https://github.com/GPT-SoVITS-Devel/GPT-SoVITS-cpp) 发布onnx/trt的c++绑定,onnx速度在保持python原生质量的同时生成速度持平甚至略超python原生,trt更是在onnx基础上吞吐几乎翻倍~🎉
+
+
 # 环境配置
 
 - 安装CUDA
